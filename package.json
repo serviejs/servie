@@ -1,0 +1,53 @@
+{
+  "name": "servie",
+  "version": "0.0.0",
+  "description": "Standard HTTP interfaces",
+  "main": "dist/index.js",
+  "files": [
+    "dist/",
+    "typings.json",
+    "LICENSE",
+    "logo.svg"
+  ],
+  "scripts": {
+    "lint": "tslint \"src/**/*.ts\"",
+    "build": "rm -rf dist/ && tsc",
+    "specs": "jest --coverage",
+    "test": "npm run -s lint && npm run -s build && npm run -s specs",
+    "prepublish": "typings install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/blakeembrey/node-servie.git"
+  },
+  "keywords": [
+    "request",
+    "response",
+    "http",
+    "interface",
+    "req",
+    "res",
+    "server"
+  ],
+  "author": {
+    "name": "Blake Embrey",
+    "email": "hello@blakeembrey.com",
+    "url": "http://blakeembrey.me"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/blakeembrey/node-servie/issues"
+  },
+  "homepage": "https://github.com/blakeembrey/node-servie",
+  "devDependencies": {
+    "jest": "^18.1.0",
+    "rimraf": "^2.5.4",
+    "tslint": "^4.3.1",
+    "tslint-config-standard": "^2.0.0",
+    "typescript": "^2.1.5",
+    "typings": "^2.1.0"
+  },
+  "dependencies": {
+    "make-error-cause": "^1.2.2"
+  }
+}
