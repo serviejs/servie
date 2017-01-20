@@ -1,7 +1,8 @@
 import { Readable } from 'stream'
-import { parse, format, Url } from 'url'
+import { parse, Url } from 'url'
 import { EventEmitter } from 'events'
 import { BaseError } from 'make-error-cause'
+import { createUnzip } from 'zlib'
 
 /**
  * Valid body payloads.
@@ -214,13 +215,17 @@ export interface CommonOptions {
 /**
  * Create a base class for requests and responses.
  */
-export class Common {
+export class Common implements CommonOptions {
   events: EventEmitter
 
+  private _timeout: any
   private _body: Body
   private _bodyUsed = true
   private _headers: Headers
   private _trailers: Headers
+  private _started = false
+  private _finished = false
+  private _bytesTransferred = 0
 
   constructor ({ trailers, headers, events, body }: CommonOptions) {
     this.events = events || new EventEmitter()
@@ -228,6 +233,40 @@ export class Common {
     this.headers = new Headers(headers)
     this.trailers = new Headers(trailers)
     this.body = body
+  }
+
+  get finished () {
+    return this._finished
+  }
+
+  set finished (finished: boolean) {
+    if (!this._finished && finished) {
+      this._finished = true
+      this.events.emit('finished')
+      this.clearTimeout()
+    }
+  }
+
+  get started () {
+    return this._started
+  }
+
+  set started (started: boolean) {
+    if (!this._started && started) {
+      this._started = true
+      this.events.emit('started')
+    }
+  }
+
+  get bytesTransferred () {
+    return this._bytesTransferred
+  }
+
+  set bytesTransferred (bytes: number) {
+    if (bytes > this._bytesTransferred) {
+      this._bytesTransferred = bytes
+      this.events.emit('progress', this)
+    }
   }
 
   get headers () {
@@ -322,6 +361,16 @@ export class Common {
 
   set length (length: number | undefined) {
     this.headers.set('Content-Length', length)
+  }
+
+  _setTimeout (cb: () => void, ms: number) {
+    clearTimeout(this._timeout)
+    this._timeout = setTimeout(cb, ms)
+  }
+
+  clearTimeout () {
+    clearTimeout(this._timeout)
+    this._timeout = undefined
   }
 
   buffer (maxBufferSize: number = 1000 * 1000): Promise<Buffer | undefined> {
@@ -440,21 +489,35 @@ export class Common {
 }
 
 /**
+ * HTTP request connection information.
+ */
+export interface Connection {
+  remoteAddress?: string
+  remotePort?: number
+  localAddress?: string
+  localPort?: number
+  encrypted?: boolean
+}
+
+/**
  * HTTP request class options.
  */
 export interface RequestOptions extends CommonOptions {
   url: string
   method?: string
+  connection?: Connection
 }
 
 /**
  * The HTTP request class.
  */
-export class Request extends Common {
-  destroyed = false
+export class Request extends Common implements RequestOptions {
+  aborted = false
+  originalUrl: string
+  connection: Connection
 
   private _Url: Url | undefined
-  private _url: string | undefined
+  private _url: string
   private _method: string
 
   constructor (options: RequestOptions) {
@@ -462,24 +525,21 @@ export class Request extends Common {
 
     this.url = options.url
     this.method = options.method || 'GET'
+    this.originalUrl = this.url
+    this.connection = options.connection || {}
   }
 
   get url () {
-    return this._url || (this._url = format(this.Url))
+    return this._url
   }
 
   set url (url: string) {
-    this._url = url
+    this._url = url || ''
     this._Url = undefined
   }
 
   get Url () {
-    return this._Url || (this._Url = parse(this._url || '', false, true))
-  }
-
-  set Url (Url: Url) {
-    this._Url = Url
-    this._url = undefined
+    return this._Url || (this._Url = parse(this._url, false, true))
   }
 
   set method (method: string) {
@@ -494,13 +554,43 @@ export class Request extends Common {
     return new HttpError(message, code, status, this, original)
   }
 
-  destroy () {
-    if (!this.destroyed) {
-      const err = this.error('Request aborted', 'EDESTROY')
-      this.events.emit('destroy', err)
+  abort () {
+    const abort = !this.aborted && !this.finished
+
+    if (abort) {
+      this.aborted = true
+      this.events.emit('abort', this.error('Request aborted', 'EABORT', 444))
+      this.clearTimeout()
     }
 
-    return this.destroyed
+    return abort
+  }
+
+  setTimeout (ms: number) {
+    return this._setTimeout(
+      () => {
+        this.events.emit('error', this.error('Request timeout', 'ETIMEOUT', 408))
+        this.abort()
+      },
+      ms
+    )
+  }
+
+  toJSON () {
+    return {
+      url: this.url,
+      method: this.method,
+      body: this.body,
+      headers: this.headers.object(),
+      trailers: this.trailers.object(),
+      started: this.started,
+      finished: this.finished,
+      bytesTransferred: this.bytesTransferred
+    }
+  }
+
+  inspect () {
+    return this.toJSON()
   }
 }
 
@@ -515,20 +605,42 @@ export interface ResponseOptions extends CommonOptions {
 /**
  * The HTTP response class.
  */
-export class Response extends Common {
-  status: number
-  statusText: string
+export class Response extends Common implements ResponseOptions {
+  status: number | undefined
+  statusText: string | undefined
 
-  constructor (options: ResponseOptions) {
+  constructor (public request: Request, options: ResponseOptions) {
     super(options)
 
-    if (options.status) {
-      this.status = options.status
-    }
+    this.status = options.status
+    this.statusText = options.statusText
+  }
 
-    if (options.statusText) {
-      this.statusText = options.statusText
+  setTimeout (ms: number) {
+    return this._setTimeout(
+      () => {
+        this.events.emit('error', this.request.error('Response timeout', 'ETIMEOUT', 408))
+        this.request.abort()
+      },
+      ms
+    )
+  }
+
+  toJSON () {
+    return {
+      status: this.status,
+      statusText: this.statusText,
+      body: this.body,
+      headers: this.headers.object(),
+      trailers: this.trailers.object(),
+      started: this.started,
+      finished: this.finished,
+      bytesTransferred: this.bytesTransferred
     }
+  }
+
+  inspect () {
+    return this.toJSON()
   }
 }
 
@@ -536,9 +648,7 @@ export class Response extends Common {
  * Check if a stream is readable.
  */
 function isStream (stream: any): stream is Readable {
-  return stream !== null &&
-    typeof stream === 'object' &&
-    typeof stream.pipe === 'function'
+  return stream !== null && typeof stream === 'object' && typeof stream.pipe === 'function'
 }
 
 /**
