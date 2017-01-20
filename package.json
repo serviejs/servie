@@ -35,7 +35,7 @@
     "email": "hello@blakeembrey.com",
     "url": "http://blakeembrey.me"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/blakeembrey/node-servie/issues"
   },
