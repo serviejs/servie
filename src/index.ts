@@ -305,7 +305,7 @@ export class Common implements CommonOptions {
 
     if (typeof body === 'string') {
       if (setType) {
-        this.type = 'text/html'
+        this.type = 'text/plain'
       }
 
       this.length = Buffer.byteLength(body)
