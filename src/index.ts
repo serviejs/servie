@@ -6,7 +6,7 @@ import { BaseError } from 'make-error-cause'
 /**
  * Valid body payloads.
  */
-export type Body = undefined | string | Buffer | Readable
+export type Body = undefined | string | Buffer | Readable | {}
 
 /**
  * Raw HTTP header formats allowed.
