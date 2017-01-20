@@ -15,6 +15,9 @@ npm install servie --save
 
 ## Usage
 
+* [`throwback`](https://github.com/blakeembrey/throwback) Compose middleware into a single function
+* [`servie-lambda`](https://github.com/blakeembrey/node-servie-lambda) Transport layer for AWS Lambda
+
 ### Common
 
 > Base HTTP class for common request and response logic.
