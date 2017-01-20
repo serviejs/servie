@@ -22,9 +22,28 @@ describe('httpco', () => {
 
   describe('response', () => {
     it('should have a status', () => {
-      const res = new Response({ status: 200 })
+      const req = new Request({ url: '/' })
+      const res = new Response(req, { status: 200 })
 
       expect(res.status).toBe(200)
+    })
+  })
+
+  describe('cloning', () => {
+    it('should be possible to clone the request and response', () => {
+      const req = new Request({ url: '/endpoint' })
+      const res = new Response(req, { status: 404 })
+
+      const reqClone = new Request(req)
+      const resClone = new Response(res.request, res)
+
+      expect(req).not.toBe(reqClone)
+      expect(res).not.toBe(resClone)
+
+      expect(req.url).toEqual('/endpoint')
+      expect(req.url).toEqual(reqClone.url)
+      expect(res.status).toEqual(404)
+      expect(res.status).toEqual(resClone.status)
     })
   })
 })

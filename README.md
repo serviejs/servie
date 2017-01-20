@@ -39,6 +39,9 @@ import { Common } from 'servie'
 * `bodyUsed` A boolean indicating where the body was read
 * `type` A shorthand property for reading and writing the `Content-Type` header
 * `length` A shorthand property for reading and writing `Content-Length` as a number
+* `started` Boolean indicating if a request/response has started
+* `finished` Boolean indicating if a request/response has finished
+* `bytesTransferred` The number of bytes sent in the HTTP request/response
 
 #### Methods
 
@@ -46,11 +49,17 @@ import { Common } from 'servie'
 * `text(maxBufferSize): Promise<string>` Read the body as a `string`
 * `json(maxBufferSize): Promise<object>` Read the body as a JSON payload
 * `stream(): Readable` Read the body as a `Readable` stream
+* `setTimeout(ms): void` Set a timeout on the request or response to be marked as finished
+* `clearTimeout(ms): void` Clear a previous timeout
 
 #### Events
 
 * `headers` Emitted when the `headers` object becomes available
 * `trailers` Emitted when the `trailers` object becomes available
+* `error` Emitted when an out-of-band error occurs (e.g. abort or timeout) and MUST be handled by the transport
+* `started` Emitted when the request/response has started
+* `finished` Emitted when the request/respone has finished
+* `progress` Emitted when the `bytesTransferred` properties is incremented
 
 ### Request
 
@@ -62,25 +71,34 @@ import { Request } from 'servie'
 
 #### Options
 
+```ts
+const request = new Request({
+  url: '/',
+  method: 'GET'
+})
+```
+
 > Extends `Common` options.
 
 * `url` The HTTP request url (`string`)
 * `method?` The HTTP request method (`string`, default: `GET`)
+* `connection?` Connection information (`{ remoteAddress?: string, remotePort?: number, localAddress?: string, localPort?: number, encrypted?: boolean }`)
 
 #### Properties
 
 * `url` The HTTP request url (`string`)
 * `method` The HTTP request method upper-cased (`string`)
-* `Url` The HTTP request url as a parsed object (`object`)
+* `Url` The HTTP request url as a read-only parsed object (`object`)
+* `connection` Connection information (`{}`)
 
 #### Methods
 
-* `destroy(): HttpError` Emit an abort event
+* `abort(): boolean` Emit an abort event
 * `error(message, code, status?, original?): HttpError` Create a HTTP error instance
 
 #### Events
 
-* `destroy` Emitted when the request is destroyed/aborted
+* `abort` Emitted when the request is aborted and MUST be handled by transport
 
 ### Response
 
@@ -91,6 +109,10 @@ import { Response } from 'servie'
 ```
 
 #### Options
+
+```ts
+const response = new Response(request, {})
+```
 
 > Extends `Common` options.
 
