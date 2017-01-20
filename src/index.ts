@@ -6,7 +6,7 @@ import { BaseError } from 'make-error-cause'
 /**
  * Valid body payloads.
  */
-export type Body = undefined | string | Buffer | Readable | {}
+export type Body = undefined | string | Buffer | Readable
 
 /**
  * Raw HTTP header formats allowed.
@@ -332,7 +332,8 @@ export class Common implements CommonOptions {
 
     if (isBasicObject(body)) {
       this.type = 'application/json'
-      this.length = undefined
+      this._body = JSON.stringify(body)
+      this.length = Buffer.byteLength(this._body)
     }
 
     throw new TypeError(`Unknown body: ${body}`)
@@ -473,17 +474,6 @@ export class Common implements CommonOptions {
     }
 
     return this.buffer(maxBufferSize).then(x => x ? x.toString('utf8') : undefined)
-  }
-
-  json (maxBufferSize?: number): Promise<{}> {
-    if (isBasicObject(this._body)) {
-      const body = this._body
-      this._body = undefined
-      this._bodyUsed = true
-      return Promise.resolve(body)
-    }
-
-    return this.text(maxBufferSize).then(x => x ? JSON.parse(x) : undefined)
   }
 }
 
