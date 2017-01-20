@@ -1,6 +1,6 @@
 import { Common, Request, Response } from './index'
 
-describe('httpco', () => {
+describe('servie', () => {
   describe('common', () => {
     it('should accept headers', () => {
       const common = new Common({ headers: { 'X-Test': 'test' } })
