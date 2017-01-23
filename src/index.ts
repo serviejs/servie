@@ -226,7 +226,7 @@ export class Common implements CommonOptions {
   private _finished = false
   private _bytesTransferred = 0
 
-  constructor ({ trailers, headers, events, body }: CommonOptions) {
+  constructor ({ trailers, headers, events, body }: CommonOptions = {}) {
     this.events = events || new EventEmitter()
 
     this.headers = new Headers(headers)
@@ -599,7 +599,7 @@ export class Response extends Common implements ResponseOptions {
   status: number | undefined
   statusText: string | undefined
 
-  constructor (public request: Request, options: ResponseOptions) {
+  constructor (public request: Request, options: ResponseOptions = {}) {
     super(options)
 
     this.status = options.status
