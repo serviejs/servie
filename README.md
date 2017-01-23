@@ -50,7 +50,6 @@ import { Common } from 'servie'
 
 * `buffer(maxBufferSize): Promise<Buffer>` Read the body into a `Buffer` object
 * `text(maxBufferSize): Promise<string>` Read the body as a `string`
-* `json(maxBufferSize): Promise<object>` Read the body as a JSON payload
 * `stream(): Readable` Read the body as a `Readable` stream
 * `setTimeout(ms): void` Set a timeout on the request or response to be marked as finished
 * `clearTimeout(ms): void` Clear a previous timeout
