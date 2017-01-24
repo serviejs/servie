@@ -65,14 +65,16 @@ export default class HttpError extends BaseError {
   code: string
   status: number
   request: Request
+  headers?: HeadersObject
   name = 'HttpError'
 
-  constructor (message: string, code: string, status: number, request: Request, original?: Error) {
-    super(message, original)
+  constructor (message: string, code: string, status: number, request: Request, cause?: Error, headers?: HeadersObject) {
+    super(message, cause)
 
     this.code = code
     this.status = status
     this.request = request
+    this.headers = headers
   }
 
 }
@@ -540,8 +542,8 @@ export class Request extends Common implements RequestOptions {
     return this._method
   }
 
-  error (message: string, code: string, status: number = 500, original?: Error): HttpError {
-    return new HttpError(message, code, status, this, original)
+  error (message: string, code: string, status: number = 500, original?: Error, headers?: HeadersObject): HttpError {
+    return new HttpError(message, code, status, this, original, headers)
   }
 
   abort () {
