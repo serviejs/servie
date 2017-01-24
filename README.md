@@ -20,6 +20,7 @@ npm install servie --save
 * [`busboy`](https://www.npmjs.com/package/busboy) A streaming parser for HTML form data
 * [`qs`](https://github.com/ljharb/qs) and [`querystring`](https://nodejs.org/api/querystring.html) Parse the HTTP query string to an object
 * [`consolidate`](https://github.com/tj/consolidate.js) Template rendering
+* [`get-body`](https://github.com/blakeembrey/node-get-body) General body parser for forms, JSON and text
 
 ### `Common`
 
