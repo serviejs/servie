@@ -337,6 +337,7 @@ export class Common implements CommonOptions {
       this._body = str
       this.type = 'application/json'
       this.length = Buffer.byteLength(str)
+      return
     }
 
     throw new TypeError(`Unknown body: ${body}`)

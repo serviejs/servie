@@ -27,6 +27,14 @@ describe('servie', () => {
 
       expect(res.status).toBe(200)
     })
+
+    it('should json encode body if a simple object', () => {
+      const req = new Request({ url: '/json' })
+      const res = new Response(req, { body: { foo: 'bar' } })
+
+      expect(res.headers.get('Content-Type')).toBe('application/json')
+      expect(res.body).toEqual('{\"foo\":\"bar\"}')
+    })
   })
 
   describe('cloning', () => {
