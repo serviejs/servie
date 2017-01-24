@@ -141,7 +141,7 @@ export class Headers {
     if (Array.isArray(value)) {
       for (const item of value) {
         if (item != null) {
-          this.raw.push(name, item)
+          this.raw.push(name, String(item))
         }
       }
     } else if (value != null) {
