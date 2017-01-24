@@ -604,6 +604,9 @@ export class Response extends Common implements ResponseOptions {
 
     this.status = options.status
     this.statusText = options.statusText
+
+    // Emit a response event to listeners.
+    this.request.events.emit('response', this)
   }
 
   setTimeout (ms: number) {
