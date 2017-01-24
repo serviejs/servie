@@ -612,7 +612,7 @@ export class Response extends Common implements ResponseOptions {
   setTimeout (ms: number) {
     return this._setTimeout(
       () => {
-        this.events.emit('error', this.request.error('Response timeout', 'ETIMEOUT', 408))
+        this.request.events.emit('error', this.request.error('Response timeout', 'ETIMEOUT', 408))
         this.request.abort()
       },
       ms

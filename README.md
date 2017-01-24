@@ -58,7 +58,6 @@ import { Common } from 'servie'
 
 * `headers` Emitted when the `headers` object becomes available
 * `trailers` Emitted when the `trailers` object becomes available
-* `error` Emitted when an out-of-band error occurs (e.g. abort or timeout) and MUST be handled by the transport
 * `started` Emitted when the request/response has started
 * `finished` Emitted when the request/respone has finished
 * `progress` Emitted when the `bytesTransferred` properties is incremented
@@ -101,6 +100,7 @@ const request = new Request({
 #### Events
 
 * `abort` Emitted when the request is aborted and MUST be handled by transport
+* `error` Emitted when an out-of-band error occurs (e.g. abort or timeout) and MUST be handled by the transport
 
 ### Response
 
