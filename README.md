@@ -15,10 +15,13 @@ npm install servie --save
 
 ## Usage
 
-* [`throwback`](https://github.com/blakeembrey/throwback) Compose middleware into a single function
-* [`servie-lambda`](https://github.com/blakeembrey/node-servie-lambda) Transport layer for AWS Lambda
+* [`throwback`](https://github.com/blakeembrey/throwback) Compose middleware functions into a single function
+* [`servie-lambda`](https://github.com/blakeembrey/node-servie-lambda) Servie transport layer for AWS Lambda
+* [`busboy`](https://www.npmjs.com/package/busboy) A streaming parser for HTML form data
+* [`qs`](https://github.com/ljharb/qs) and [`querystring`](https://nodejs.org/api/querystring.html) Parse the HTTP query string to an object
+* [`consolidate`](https://github.com/tj/consolidate.js) Template rendering
 
-### Common
+### `Common`
 
 > Base HTTP class for common request and response logic.
 
@@ -62,7 +65,7 @@ import { Common } from 'servie'
 * `finished` Emitted when the request/respone has finished
 * `progress` Emitted when the `bytesTransferred` properties is incremented
 
-### Request
+### `Request`
 
 > HTTP class for encapsulating a `Request`, extends `Common`.
 
@@ -102,7 +105,7 @@ const request = new Request({
 * `abort` Emitted when the request is aborted and MUST be handled by transport
 * `error` Emitted when an out-of-band error occurs (e.g. abort or timeout) and MUST be handled by the transport
 
-### Response
+### `Response`
 
 > HTTP class for encapsulating a `Response`, extends `Common`.
 
@@ -126,7 +129,7 @@ const response = new Response(request, {})
 * `status?` The HTTP response status code (`number`)
 * `statusText?` The HTTP response status message (`string`)
 
-### Headers
+### `Headers`
 
 > Used by `Common` for `Request` and `Response` objects.
 
@@ -148,7 +151,7 @@ Take a single parameter with the headers in object, array or `Headers` format.
 * `has(name: string): boolean` Check if a case-insensitive header is already set
 * `delete(name: string): this` Delete a case-insensitive header
 
-### HTTP Error
+### `HttpError`
 
 > Internally and externally triggered HTTP errors.
 
