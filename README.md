@@ -169,8 +169,9 @@ If you're building the transports for Servie, there are some life cycle events y
 
 1. Listen to the `error` event on `Request` for out-of-band errors and respond accordingly (e.g. app-level logging)
 2. Listen to the `abort` event on `Request` to destroy the HTTP request
-3. Set `started === true` and `finished === true` on `Request` and `Response`, as appropriate
-4. Set `bytesTransferred` on `Request` and `Response` when monitoring HTTP transfer progress
+3. Emit the `response` event on `Request` when handling the response
+4. Set `started === true` and `finished === true` on `Request` and `Response`, as appropriate
+5. Set `bytesTransferred` on `Request` and `Response` when monitoring HTTP transfer progress
 
 ## JavaScript
 
