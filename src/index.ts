@@ -219,7 +219,6 @@ export interface CommonOptions {
 export class Common implements CommonOptions {
   events: EventEmitter
 
-  private _timeout: any
   private _body: Body
   private _bodyUsed = true
   private _headers: Headers
@@ -244,7 +243,6 @@ export class Common implements CommonOptions {
     if (!this._finished && finished) {
       this._finished = true
       this.events.emit('finished')
-      this.clearTimeout()
     }
   }
 
@@ -365,16 +363,6 @@ export class Common implements CommonOptions {
 
   set length (length: number | undefined) {
     this.headers.set('Content-Length', length)
-  }
-
-  _setTimeout (cb: () => void, ms: number) {
-    clearTimeout(this._timeout)
-    this._timeout = setTimeout(cb, ms)
-  }
-
-  clearTimeout () {
-    clearTimeout(this._timeout)
-    this._timeout = undefined
   }
 
   buffer (maxBufferSize: number = 1000 * 1000): Promise<Buffer | undefined> {
@@ -553,20 +541,9 @@ export class Request extends Common implements RequestOptions {
     if (abort) {
       this.aborted = true
       this.events.emit('abort', this.error('Request aborted', 'EABORT', 444))
-      this.clearTimeout()
     }
 
     return abort
-  }
-
-  setTimeout (ms: number) {
-    return this._setTimeout(
-      () => {
-        this.events.emit('error', this.error('Request timeout', 'ETIMEOUT', 408))
-        this.abort()
-      },
-      ms
-    )
   }
 
   toJSON () {
@@ -602,24 +579,11 @@ export class Response extends Common implements ResponseOptions {
   status: number | undefined
   statusText: string | undefined
 
-  constructor (public request: Request, options: ResponseOptions = {}) {
+  constructor (options: ResponseOptions = {}) {
     super(options)
 
     this.status = options.status
     this.statusText = options.statusText
-
-    // Emit a response event to listeners.
-    this.request.events.emit('response', this)
-  }
-
-  setTimeout (ms: number) {
-    return this._setTimeout(
-      () => {
-        this.request.events.emit('error', this.request.error('Response timeout', 'ETIMEOUT', 408))
-        this.request.abort()
-      },
-      ms
-    )
   }
 
   toJSON () {

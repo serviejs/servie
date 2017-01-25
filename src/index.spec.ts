@@ -22,15 +22,13 @@ describe('servie', () => {
 
   describe('response', () => {
     it('should have a status', () => {
-      const req = new Request({ url: '/' })
-      const res = new Response(req, { status: 200 })
+      const res = new Response({ status: 200 })
 
       expect(res.status).toBe(200)
     })
 
     it('should json encode body if a simple object', () => {
-      const req = new Request({ url: '/json' })
-      const res = new Response(req, { body: { foo: 'bar' } })
+      const res = new Response({ body: { foo: 'bar' } })
 
       expect(res.headers.get('Content-Type')).toBe('application/json')
       expect(res.body).toEqual('{\"foo\":\"bar\"}')
@@ -40,10 +38,10 @@ describe('servie', () => {
   describe('cloning', () => {
     it('should be possible to clone the request and response', () => {
       const req = new Request({ url: '/endpoint' })
-      const res = new Response(req, { status: 404 })
+      const res = new Response({ status: 404 })
 
       const reqClone = new Request(req)
-      const resClone = new Response(res.request, res)
+      const resClone = new Response(res)
 
       expect(req).not.toBe(reqClone)
       expect(res).not.toBe(resClone)

@@ -39,11 +39,11 @@ import { Common } from 'servie'
 
 #### Properties
 
-* `events` The request/response event emitter
-* `headers` The submitted headers as a `Headers` instance
-* `trailers` The submitted trailers as a `Headers` instance
-* `body` The submitted body payload
-* `bodyUsed` A boolean indicating where the body was read
+* `events` An event emitter for listening to the request and response lifecycles
+* `headers` The headers as a `Headers` instance
+* `trailers` The trailers as a `Headers` instance
+* `body` The request or response payload
+* `bodyUsed` A boolean indicating whether the body has been read
 * `type` A shorthand property for reading and writing the `Content-Type` header
 * `length` A shorthand property for reading and writing `Content-Length` as a number
 * `started` Boolean indicating if a request/response has started
@@ -55,16 +55,14 @@ import { Common } from 'servie'
 * `buffer(maxBufferSize): Promise<Buffer>` Read the body into a `Buffer` object
 * `text(maxBufferSize): Promise<string>` Read the body as a `string`
 * `stream(): Readable` Read the body as a `Readable` stream
-* `setTimeout(ms): void` Set a timeout on the request or response to be marked as finished
-* `clearTimeout(ms): void` Clear a previous timeout
 
 #### Events
 
-* `headers` Emitted when the `headers` object becomes available
-* `trailers` Emitted when the `trailers` object becomes available
-* `started` Emitted when the request/response has started
-* `finished` Emitted when the request/respone has finished
-* `progress` Emitted when the `bytesTransferred` properties is incremented
+* `headers` Emitted when the `headers` object is available
+* `trailers` Emitted when the `trailers` object is available
+* `started` Emitted when `started === true`
+* `finished` Emitted when `finished === true`
+* `progress` Emitted when `bytesTransferred` is incremented
 
 ### `Request`
 
@@ -104,7 +102,8 @@ const request = new Request({
 #### Events
 
 * `abort` Emitted when the request is aborted and MUST be handled by transport
-* `error` Emitted when an out-of-band error occurs (e.g. abort or timeout) and MUST be handled by the transport
+* `error` Emitted when an out-of-band error occurs (e.g. abort) and MUST be handled by the transport
+* `response` Emitted when the response object is being handled
 
 ### `Response`
 
@@ -117,7 +116,7 @@ import { Response } from 'servie'
 #### Options
 
 ```ts
-const response = new Response(request, {})
+const response = new Response({})
 ```
 
 > Extends `Common` options.
@@ -163,6 +162,15 @@ Take a single parameter with the headers in object, array or `Headers` format.
 * `request` The `Request` instance that triggered the error (`Request`)
 * `message` Standard error message (`string`)
 * `cause` Specified when the HTTP error was triggered by an underlying error
+
+## Implementers
+
+If you're building the transports for Servie, there are some life cycle events you need to be aware of and emit yourself:
+
+1. Listen to the `error` event on `Request` for out-of-band errors and respond accordingly (e.g. app-level logging)
+2. Listen to the `abort` event on `Request` to destroy the HTTP request
+3. Set `started === true` and `finished === true` on `Request` and `Response`, as appropriate
+4. Set `bytesTransferred` on `Request` and `Response` when monitoring HTTP transfer progress
 
 ## JavaScript
 
