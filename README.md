@@ -183,7 +183,7 @@ This project is written using [TypeScript](https://github.com/Microsoft/TypeScri
 
 ## License
 
-MIT
+Apache 2.0
 
 [npm-image]: https://img.shields.io/npm/v/servie.svg?style=flat
 [npm-url]: https://npmjs.org/package/servie
