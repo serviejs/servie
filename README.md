@@ -21,6 +21,11 @@ npm install servie --save
 * [`qs`](https://github.com/ljharb/qs) and [`querystring`](https://nodejs.org/api/querystring.html) Parse the HTTP query string to an object
 * [`consolidate`](https://github.com/tj/consolidate.js) Template rendering
 * [`get-body`](https://github.com/blakeembrey/node-get-body) General body parser for forms, JSON and text
+* [`servie-cors`](https://github.com/blakeembrey/node-servie-cors) CORS middleware for Servie
+* [`servie-route`](https://github.com/blakeembrey/node-servie-route) Routing middleware for Servie
+* [`servie-mount`](https://github.com/blakeembrey/node-servie-mount) Mount Servie middleware on a path prefix
+* [`servie-compat-http`](https://github.com/blakeembrey/node-servie-compat-http) Mimic node.js HTTP using Servie
+* [`servie-redirect`](https://github.com/blakeembrey/node-servie-redirect) Create response objects for redirection
 
 ### `Common`
 
