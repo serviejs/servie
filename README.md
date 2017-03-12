@@ -26,6 +26,7 @@ npm install servie --save
 * [`servie-mount`](https://github.com/blakeembrey/node-servie-mount) Mount Servie middleware on a path prefix
 * [`servie-compat-http`](https://github.com/blakeembrey/node-servie-compat-http) Mimic node.js HTTP using Servie
 * [`servie-redirect`](https://github.com/blakeembrey/node-servie-redirect) Create response objects for redirection
+* [`servie-cookie-store`](https://github.com/blakeembrey/node-servie-cookie-store) API for managing client-side cookies
 
 ### `Common`
 
