@@ -17,6 +17,7 @@ npm install servie --save
 
 * [`throwback`](https://github.com/blakeembrey/throwback) Compose middleware functions into a single function
 * [`servie-lambda`](https://github.com/blakeembrey/node-servie-lambda) Servie transport layer for AWS Lambda
+* [`servie-http`](https://github.com/blakeembrey/node-servie-http) Servie transport layer for node.js HTTP
 * [`busboy`](https://www.npmjs.com/package/busboy) A streaming parser for HTML form data
 * [`qs`](https://github.com/ljharb/qs) and [`querystring`](https://nodejs.org/api/querystring.html) Parse the HTTP query string to an object
 * [`consolidate`](https://github.com/tj/consolidate.js) Template rendering
@@ -27,6 +28,8 @@ npm install servie --save
 * [`servie-compat-http`](https://github.com/blakeembrey/node-servie-compat-http) Mimic node.js HTTP using Servie
 * [`servie-redirect`](https://github.com/blakeembrey/node-servie-redirect) Create response objects for redirection
 * [`servie-cookie-store`](https://github.com/blakeembrey/node-servie-cookie-store) API for managing client-side cookies
+* [`servie-errorhandler`](https://github.com/blakeembrey/node-servie-errorhandler) Standard error handler for transport layers
+* [`servie-finalhandler`](https://github.com/blakeembrey/node-servie-finalhandler) Standard final handler for transport layers
 
 ### `Common`
 
@@ -50,6 +53,7 @@ import { Common } from 'servie'
 * `trailers` The trailers as a `Headers` instance
 * `body` The request or response payload
 * `bodyUsed` A boolean indicating whether the body has been read
+* `bodyBuffered` A boolean indicating whether the body is buffered (e.g. string or buffer, not a stream)
 * `type` A shorthand property for reading and writing the `Content-Type` header
 * `length` A shorthand property for reading and writing `Content-Length` as a number
 * `started` Boolean indicating if a request/response has started
