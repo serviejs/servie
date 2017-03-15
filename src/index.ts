@@ -41,7 +41,7 @@ function lowerHeader (key: string) {
  * Concat two header values together.
  */
 function join (a: string | string[], b: string): string | string[] {
-  if (a == null) {
+  if (a === undefined) {
     return b
   }
 
@@ -221,6 +221,7 @@ export class Common implements CommonOptions {
 
   private _body: Body
   private _bodyUsed = true
+  private _bodyBuffered = true
   private _headers: Headers
   private _trailers: Headers
   private _started = false
@@ -291,10 +292,11 @@ export class Common implements CommonOptions {
   }
 
   set body (body: Body) {
-    this._body = body
     this._bodyUsed = false
 
-    if (body == null) {
+    if (body === undefined || body === null) {
+      this._body = undefined
+      this._bodyBuffered = true
       this.headers.delete('Content-Type')
       this.headers.delete('Content-Length')
       this.headers.delete('Content-Encoding')
@@ -308,6 +310,8 @@ export class Common implements CommonOptions {
         this.type = 'text/plain'
       }
 
+      this._body = body
+      this._bodyBuffered = true
       this.length = Buffer.byteLength(body)
       return
     }
@@ -317,6 +321,8 @@ export class Common implements CommonOptions {
         this.type = 'application/octet-stream'
       }
 
+      this._body = body
+      this._bodyBuffered = true
       this.length = body.length
       return
     }
@@ -326,14 +332,17 @@ export class Common implements CommonOptions {
         this.type = 'application/octet-stream'
       }
 
+      this._body = body
+      this._bodyBuffered = false
       this.length = undefined
       return
     }
 
     if (isBasicObject(body)) {
+      this.type = 'application/json'
       const str = JSON.stringify(body)
       this._body = str
-      this.type = 'application/json'
+      this._bodyBuffered = true
       this.length = Buffer.byteLength(str)
       return
     }
@@ -345,10 +354,14 @@ export class Common implements CommonOptions {
     return this._bodyUsed
   }
 
+  get bodyBuffered () {
+    return this._bodyBuffered
+  }
+
   get type () {
     const header = this.headers.get('Content-Type')
 
-    return header == null ? undefined : type(header)
+    return header === undefined ? undefined : type(header)
   }
 
   set type (type: string | undefined) {
@@ -358,7 +371,7 @@ export class Common implements CommonOptions {
   get length () {
     const len = this.headers.get('Content-Length')
 
-    return len == null ? undefined : Number(len)
+    return len === undefined ? undefined : Number(len)
   }
 
   set length (length: number | undefined) {
@@ -372,9 +385,7 @@ export class Common implements CommonOptions {
 
     let body: Promise<Buffer | undefined>
 
-    if (this._body == null) {
-      body = Promise.resolve(undefined)
-    } else if (Buffer.isBuffer(this._body)) {
+    if (this._body === undefined || Buffer.isBuffer(this._body)) {
       body = Promise.resolve(this._body)
     } else if (typeof this._body === 'string') {
       body = Promise.resolve(new Buffer(this._body))
@@ -423,7 +434,7 @@ export class Common implements CommonOptions {
 
     let body: Readable
 
-    if (this._body == null) {
+    if (this._body === undefined) {
       body = new Readable({ read () { this.push(null) }})
     } else if (typeof this._body === 'string' || Buffer.isBuffer(this._body)) {
       let o: Buffer | string | null = this._body
