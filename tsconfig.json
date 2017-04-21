@@ -9,6 +9,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
