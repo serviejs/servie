@@ -106,10 +106,10 @@ export class Headers {
     }
   }
 
-  object (): HeadersObject
+  object (keepHeaderCase?: boolean): HeadersObject
   object (obj: HeadersObject | null): void
-  object (obj?: HeadersObject | null): HeadersObject | void {
-    if (arguments.length) {
+  object (obj?: boolean | HeadersObject | null): HeadersObject | void {
+    if (typeof obj === 'object') {
       splice(this.raw, 0, this.raw.length)
 
       if (obj) {
@@ -124,7 +124,7 @@ export class Headers {
     const headers: HeadersObject = Object.create(null)
 
     for (let i = 0; i < this.raw.length; i += 2) {
-      const key = lowerHeader(this.raw[i])
+      const key = obj === true ? this.raw[i] : lowerHeader(this.raw[i])
       const value = join(headers[key], this.raw[i + 1])
       headers[key] = value
     }

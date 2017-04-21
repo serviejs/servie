@@ -8,6 +8,8 @@ describe('servie', () => {
       expect(common.headers.get('X-Test')).toBe('test')
       expect(common.headers.getAll('x-test')).toEqual(['test'])
       expect(common.headers.raw).toEqual(['X-Test', 'test'])
+      expect(common.headers.object()).toEqual({ 'x-test': 'test' })
+      expect(common.headers.object(true)).toEqual({ 'X-Test': 'test' })
     })
   })
 
