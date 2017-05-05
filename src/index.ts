@@ -6,7 +6,7 @@ import { BaseError } from 'make-error-cause'
 /**
  * Valid body payloads.
  */
-export type Body = undefined | string | Buffer | Readable | {}
+export type Body = undefined | null | string | Buffer | Readable | {}
 
 /**
  * Raw HTTP header formats allowed.
@@ -40,7 +40,7 @@ function lowerHeader (key: string) {
 /**
  * Concat two header values together.
  */
-function join (a: string | string[], b: string): string | string[] {
+function join (a: string | string[] | undefined, b: string): string | string[] {
   if (a === undefined) {
     return b
   }
@@ -139,12 +139,10 @@ export class Headers {
     return this
   }
 
-  append (name: string, value?: string | number | string[]) {
+  append (name: string, value?: null | string | number | string[]) {
     if (Array.isArray(value)) {
       for (const item of value) {
-        if (item != null) {
-          this.raw.push(name, String(item))
-        }
+        this.raw.push(name, String(item))
       }
     } else if (value != null) {
       this.raw.push(name, String(value))
