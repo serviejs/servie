@@ -51,10 +51,10 @@ function join (a: string | string[] | undefined, b: string): string | string[] {
 /**
  * Extract the content type from a header string.
  */
-function type (str: string) {
+function parseType (str: string) {
   const index = str.indexOf(';')
 
-  return index === -1 ? undefined : str.slice(0, index).trim()
+  return index === -1 ? str.trim() : str.slice(0, index).trim()
 }
 
 /**
@@ -301,8 +301,8 @@ export class Common implements CommonOptions {
       return
     }
 
-    const setType = this.type === undefined
-    const setLength = this.length === undefined
+    const setType = this.headers.get('Content-Type') === undefined
+    const setLength = this.headers.get('Content-Length') === undefined
 
     if (typeof body === 'string') {
       if (setType) this.type = 'text/plain'
@@ -355,7 +355,7 @@ export class Common implements CommonOptions {
   get type () {
     const header = this.headers.get('Content-Type')
 
-    return header === undefined ? undefined : type(header)
+    return header === undefined ? undefined : parseType(header)
   }
 
   set type (type: string | undefined) {
