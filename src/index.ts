@@ -301,47 +301,43 @@ export class Common implements CommonOptions {
       return
     }
 
-    const setType = !this.headers.has('Content-Type')
+    const setType = this.type === undefined
+    const setLength = this.length === undefined
 
     if (typeof body === 'string') {
-      if (setType) {
-        this.type = 'text/plain'
-      }
+      if (setType) this.type = 'text/plain'
+      if (setLength) this.length = Buffer.byteLength(body)
 
       this._body = body
       this._bodyBuffered = true
-      this.length = Buffer.byteLength(body)
       return
     }
 
     if (Buffer.isBuffer(body)) {
-      if (setType) {
-        this.type = 'application/octet-stream'
-      }
+      if (setType) this.type = 'application/octet-stream'
+      if (setLength) this.length = body.length
 
       this._body = body
       this._bodyBuffered = true
-      this.length = body.length
       return
     }
 
     if (isStream(body)) {
-      if (setType) {
-        this.type = 'application/octet-stream'
-      }
+      if (setType) this.type = 'application/octet-stream'
 
       this._body = body
       this._bodyBuffered = false
-      this.length = undefined
       return
     }
 
     if (isBasicObject(body)) {
-      this.type = 'application/json'
       const str = JSON.stringify(body)
+
+      if (setType) this.type = 'application/json'
+      if (setLength) this.length = Buffer.byteLength(str)
+
       this._body = str
       this._bodyBuffered = true
-      this.length = Buffer.byteLength(str)
       return
     }
 
