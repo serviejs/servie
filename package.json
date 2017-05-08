@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/blakeembrey/node-servie.git"
+    "url": "git://github.com/serviejs/servie.git"
   },
   "keywords": [
     "request",
@@ -37,9 +37,9 @@
   },
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/blakeembrey/node-servie/issues"
+    "url": "https://github.com/serviejs/servie/issues"
   },
-  "homepage": "https://github.com/blakeembrey/node-servie",
+  "homepage": "https://github.com/serviejs/servie",
   "devDependencies": {
     "jest": "^19.0.0",
     "rimraf": "^2.5.4",

@@ -1,9 +1,9 @@
-# ![Servie](https://cdn.rawgit.com/blakeembrey/node-servie/master/logo.svg)
+# ![Servie](https://cdn.rawgit.com/serviejs/servie/master/logo.svg)
 
-[![NPM version][npm-image]][npm-url]
-[![NPM downloads][downloads-image]][downloads-url]
-[![Build status][travis-image]][travis-url]
-[![Test coverage][coveralls-image]][coveralls-url]
+[![NPM version](https://img.shields.io/npm/v/servie.svg?style=flat)](https://npmjs.org/package/servie)
+[![NPM downloads](https://img.shields.io/npm/dm/servie.svg?style=flat)](https://npmjs.org/package/servie)
+[![Build status](https://img.shields.io/travis/serviejs/servie.svg?style=flat)](https://travis-ci.org/serviejs/servie)
+[![Test coverage](https://img.shields.io/coveralls/serviejs/servie.svg?style=flat)](https://coveralls.io/r/serviejs/servie?branch=master)
 
 > **Servie** provides standard, framework-agnostic HTTP interfaces for servers and clients.
 
@@ -15,21 +15,21 @@ npm install servie --save
 
 ## Usage
 
-* [`throwback`](https://github.com/blakeembrey/throwback) Compose middleware functions into a single function
-* [`servie-lambda`](https://github.com/blakeembrey/node-servie-lambda) Servie transport layer for AWS Lambda
-* [`servie-http`](https://github.com/blakeembrey/node-servie-http) Servie transport layer for node.js HTTP
+* [`throwback`](https://github.com/serviejs/throwback) Compose middleware functions into a single function
+* [`servie-lambda`](https://github.com/serviejs/servie-lambda) Servie transport layer for AWS Lambda
+* [`servie-http`](https://github.com/serviejs/servie-http) Servie transport layer for node.js HTTP
 * [`busboy`](https://www.npmjs.com/package/busboy) A streaming parser for HTML form data
 * [`qs`](https://github.com/ljharb/qs) and [`querystring`](https://nodejs.org/api/querystring.html) Parse the HTTP query string to an object
 * [`consolidate`](https://github.com/tj/consolidate.js) Template rendering
-* [`get-body`](https://github.com/blakeembrey/node-get-body) General body parser for forms, JSON and text
-* [`servie-cors`](https://github.com/blakeembrey/node-servie-cors) CORS middleware for Servie
-* [`servie-route`](https://github.com/blakeembrey/node-servie-route) Routing middleware for Servie
-* [`servie-mount`](https://github.com/blakeembrey/node-servie-mount) Mount Servie middleware on a path prefix
-* [`servie-compat-http`](https://github.com/blakeembrey/node-servie-compat-http) Mimic node.js HTTP using Servie
-* [`servie-redirect`](https://github.com/blakeembrey/node-servie-redirect) Create response objects for redirection
-* [`servie-cookie-store`](https://github.com/blakeembrey/node-servie-cookie-store) API for managing client-side cookies
-* [`servie-errorhandler`](https://github.com/blakeembrey/node-servie-errorhandler) Standard error handler for transport layers
-* [`servie-finalhandler`](https://github.com/blakeembrey/node-servie-finalhandler) Standard final handler for transport layers
+* [`get-body`](https://github.com/serviejs/get-body) General body parser for forms, JSON and text
+* [`servie-cors`](https://github.com/serviejs/servie-cors) CORS middleware for Servie
+* [`servie-route`](https://github.com/serviejs/servie-route) Routing middleware for Servie
+* [`servie-mount`](https://github.com/serviejs/servie-mount) Mount Servie middleware on a path prefix
+* [`servie-compat-http`](https://github.com/serviejs/servie-compat-http) Mimic node.js HTTP using Servie
+* [`servie-redirect`](https://github.com/serviejs/servie-redirect) Create response objects for redirection
+* [`servie-cookie-store`](https://github.com/serviejs/servie-cookie-store) API for managing client-side cookies
+* [`servie-errorhandler`](https://github.com/serviejs/servie-errorhandler) Standard error handler for transport layers
+* [`servie-finalhandler`](https://github.com/serviejs/servie-finalhandler) Standard final handler for transport layers
 
 ### `Common`
 
@@ -194,12 +194,3 @@ This project is written using [TypeScript](https://github.com/Microsoft/TypeScri
 ## License
 
 Apache 2.0
-
-[npm-image]: https://img.shields.io/npm/v/servie.svg?style=flat
-[npm-url]: https://npmjs.org/package/servie
-[downloads-image]: https://img.shields.io/npm/dm/servie.svg?style=flat
-[downloads-url]: https://npmjs.org/package/servie
-[travis-image]: https://img.shields.io/travis/blakeembrey/node-servie.svg?style=flat
-[travis-url]: https://travis-ci.org/blakeembrey/node-servie
-[coveralls-image]: https://img.shields.io/coveralls/blakeembrey/node-servie.svg?style=flat
-[coveralls-url]: https://coveralls.io/r/blakeembrey/node-servie?branch=master
