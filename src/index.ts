@@ -30,9 +30,7 @@ function splice (arr: any[], start: number, count: number) {
 function lowerHeader (key: string) {
   const lower = key.toLowerCase()
 
-  if (lower === 'referrer') {
-    return 'referer'
-  }
+  if (lower === 'referrer') return 'referer'
 
   return lower
 }
@@ -41,9 +39,7 @@ function lowerHeader (key: string) {
  * Concat two header values together.
  */
 function join (a: string | string[] | undefined, b: string): string | string[] {
-  if (a === undefined) {
-    return b
-  }
+  if (a === undefined) return b
 
   return Array.isArray(a) ? a.concat(b) : [a, b]
 }
@@ -60,20 +56,30 @@ function parseType (str: string) {
 /**
  * Create a `HttpError` instance.
  */
-export default class HttpError extends BaseError {
+export class HttpError extends BaseError {
 
   code: string
   status: number
   request: Request
+  response?: Response
   headers?: HeadersObject
   name = 'HttpError'
 
-  constructor (message: string, code: string, status: number, request: Request, cause?: Error, headers?: HeadersObject) {
+  constructor (
+    message: string,
+    code: string,
+    status: number,
+    request: Request,
+    response?: Response,
+    cause?: Error,
+    headers?: HeadersObject
+  ) {
     super(message, cause)
 
     this.code = code
     this.status = status
     this.request = request
+    this.response = response
     this.headers = headers
   }
 
@@ -536,19 +542,15 @@ export class Request extends Common implements RequestOptions {
     return this._method
   }
 
-  error (message: string, code: string, status: number = 500, original?: Error, headers?: HeadersObject): HttpError {
-    return new HttpError(message, code, status, this, original, headers)
-  }
-
   abort () {
-    const abort = !this.aborted && !this.finished
+    const shouldAbort = !this.aborted && !this.finished
 
-    if (abort) {
+    if (shouldAbort) {
       this.aborted = true
-      this.events.emit('abort', this.error('Request aborted', 'EABORT', 444))
+      this.events.emit('abort', new HttpError('Request aborted', 'EABORT', 444, this))
     }
 
-    return abort
+    return shouldAbort
   }
 
   toJSON () {
@@ -620,9 +622,7 @@ function isStream (stream: any): stream is Readable {
  * Check if an object is plain.
  */
 function isBasicObject (obj: any): obj is {} | any[] {
-  if (typeof obj !== 'object') {
-    return false
-  }
+  if (typeof obj !== 'object') return false
 
   const proto = Object.getPrototypeOf(obj)
 

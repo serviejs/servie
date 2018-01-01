@@ -107,13 +107,12 @@ const request = new Request({
 #### Methods
 
 * `abort(): boolean` Emit an abort event
-* `error(message, code, status?, original?): HttpError` Create a HTTP error instance
 
 #### Events
 
-* `abort` Emitted when the request is aborted and MUST be handled by transport
-* `error` Emitted when an out-of-band error occurs (e.g. abort) and MUST be handled by the transport
-* `response` Emitted when the response object is being handled
+* `abort` - request aborted and MUST be handled by transport
+* `error` - out-of-band error occurred and MUST be handled by transport
+* `response` - the response has been received
 
 ### `Response`
 
@@ -165,13 +164,26 @@ Take a single parameter with the headers in object, array or `Headers` format.
 
 > Internally and externally triggered HTTP errors.
 
+#### Arguments
+
+```ts
+const message = 'Request timed out'
+const errorCode = 'ETIMEOUT'
+const errorStatus = 444 // "Connection closed without response"
+const errorHeaders = { 'X-Timeout': '1000' }
+
+const error = new HttpError(message, errorCode, errorStatus, request, response, cause, errorHeaders)
+```
+
 #### Properties
 
-* `code` A unique error code (`string`)
-* `status` A HTTP status code (`number`)
-* `request` The `Request` instance that triggered the error (`Request`)
-* `message` Standard error message (`string`)
-* `cause` Specified when the HTTP error was triggered by an underlying error
+* `message` - standard error message (`string`)
+* `code` - identifiable error code (`string`)
+* `status` - HTTP status code for middleware handlers (`number`)
+* `request` - `Request` instance related the error (`Request`)
+* `response` - `Response` instance related to the error (`Response`, optional)
+* `cause` - underlying error triggering the HTTP error (`Error`, optional)
+* `headers` - map of headers for middleware handlers (`object`, optional)
 
 ## Implementers
 
