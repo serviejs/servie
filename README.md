@@ -5,7 +5,7 @@
 [![Build status](https://img.shields.io/travis/serviejs/servie.svg?style=flat)](https://travis-ci.org/serviejs/servie)
 [![Test coverage](https://img.shields.io/coveralls/serviejs/servie.svg?style=flat)](https://coveralls.io/r/serviejs/servie?branch=master)
 
-> **Servie** provides standard, framework-agnostic HTTP interfaces for servers and clients.
+> Standard, framework-agnostic HTTP interfaces for JavaScript servers and clients.
 
 ## Installation
 
@@ -31,40 +31,34 @@ npm install servie --save
 * [`servie-errorhandler`](https://github.com/serviejs/servie-errorhandler) Standard error handler for transport layers
 * [`servie-finalhandler`](https://github.com/serviejs/servie-finalhandler) Standard final handler for transport layers
 
-### `Common`
+### `ServieBase`
 
 > Base HTTP class for common request and response logic.
 
 ```ts
-import { Common } from 'servie'
+import { ServieBase } from 'servie'
 ```
 
 #### Options
 
-* `headers?` HTTP headers (`Headers | HeadersObject | string[]`)
-* `trailers?` HTTP trailers (`Headers | HeadersObject | string[]`)
-* `events?` An event emitter object (`EventEmitter`)
-* `body?` Allowed HTTP bodies (`string | Buffer | Readable | object`)
+* `events?` An instance of `EventEmitter`
+* `headers?` An instance of `Headers`
+* `trailers?` An instance of `Headers`
+* `body?` An instance of `Body`
 
 #### Properties
 
-* `events` An event emitter for listening to the request and response lifecycles
+* `events` An event emitter for listening to the request and response lifecycle
 * `headers` The headers as a `Headers` instance
 * `trailers` The trailers as a `Headers` instance
 * `body` The request or response payload
-* `bodyUsed` A boolean indicating whether the body has been read
-* `bodyBuffered` A boolean indicating whether the body is buffered (e.g. string or buffer, not a stream)
-* `type` A shorthand property for reading and writing the `Content-Type` header
-* `length` A shorthand property for reading and writing `Content-Length` as a number
 * `started` Boolean indicating if a request/response has started
 * `finished` Boolean indicating if a request/response has finished
 * `bytesTransferred` The number of bytes sent in the HTTP request/response
 
 #### Methods
 
-* `buffer(maxBufferSize): Promise<Buffer>` Read the body into a `Buffer` object
-* `text(maxBufferSize): Promise<string>` Read the body as a `string`
-* `stream(): Readable` Read the body as a `Readable` stream
+* `getHeaders()` Returns the combined `Request` and `Body` headers (`Headers`)
 
 #### Events
 
@@ -72,11 +66,11 @@ import { Common } from 'servie'
 * `trailers` Emitted when the `trailers` object is available
 * `started` Emitted when `started === true`
 * `finished` Emitted when `finished === true`
-* `progress` Emitted when `bytesTransferred` is incremented
+* `progress` Emitted when `bytesTransferred` increments
 
 ### `Request`
 
-> HTTP class for encapsulating a `Request`, extends `Common`.
+> HTTP class for encapsulating a `Request`, extends `ServieBase`.
 
 ```ts
 import { Request } from 'servie'
@@ -91,7 +85,7 @@ const request = new Request({
 })
 ```
 
-> Extends `Common` options.
+> Extends `ServieBase` options.
 
 * `url` The HTTP request url (`string`)
 * `method?` The HTTP request method (`string`, default: `GET`)
@@ -99,24 +93,25 @@ const request = new Request({
 
 #### Properties
 
-* `url` The HTTP request url (`string`)
-* `method` The HTTP request method upper-cased (`string`)
-* `Url` The HTTP request url as a read-only parsed object (`object`)
-* `connection` Connection information (`{}`)
+* `url` Requested url (`string`)
+* `method` Requested method (`string`)
+* `Url` Request url parsed into individual parts (`object`)
+* `connection` HTTP connection information when available (`object`)
 
 #### Methods
 
-* `abort(): boolean` Emit an abort event
+* `abort(): boolean` Aborts the HTTP connection
 
 #### Events
 
-* `abort` - request aborted and MUST be handled by transport
-* `error` - out-of-band error occurred and MUST be handled by transport
-* `response` - the response has been received
+* `abort` Request aborted and transport _MUST_ handle
+* `error` Out-of-band error occurred and transport _MUST_ handle
+* `response` The corresponding `Response` has started
+* `connection` Emitted when connection information becomes available
 
 ### `Response`
 
-> HTTP class for encapsulating a `Response`, extends `Common`.
+> HTTP class for encapsulating a `Response`, extends `ServieBase`.
 
 ```ts
 import { Response } from 'servie'
@@ -128,7 +123,7 @@ import { Response } from 'servie'
 const response = new Response({})
 ```
 
-> Extends `Common` options.
+> Extends `ServieBase` options.
 
 * `status?` The HTTP response status code (`number`)
 * `statusText?` The HTTP response status message (`string`)
@@ -140,25 +135,68 @@ const response = new Response({})
 
 ### `Headers`
 
-> Used by `Common` for `Request` and `Response` objects.
+> Used by `ServieBase` for `Request` and `Response` objects.
 
 #### Options
 
-Take a single parameter with the headers in object, array or `Headers` format.
+Take a single parameter with the headers in raw array format.
 
 #### Properties
 
-* `raw` The raw HTTP headers list (`string[]`)
+* `rawHeaders` The raw HTTP headers list (`string[]`)
 
 #### Methods
 
-* `object(obj?: HeadersObject | null): HeadersObject | void` A getter/setter method for reading the headers as a lower-cased object (like node.js)
 * `set(name: string, value: string | string[]): this` Set a HTTP header by overriding case-insensitive headers of the same name
 * `append(name: string, value: string | string[]): this` Append a HTTP header
 * `get(name: string): string | undefined` Retrieve a case-insensitive HTTP header
 * `getAll(name: string): string[]` Retrieve a list of matching case-insensitive HTTP headers
 * `has(name: string): boolean` Check if a case-insensitive header is already set
 * `delete(name: string): this` Delete a case-insensitive header
+* `asObject(toLower?: boolean): HeadersObject` Return the headers as a plain object
+* `extend(obj: HeadersObject): this` Extends the current headers with an object
+* `keys()` Iterable of the available header names
+* `values()` Iterable of header values
+* `entries()` Iterable of headers as `[key, value]`
+* `clone()` Clones the current headers instance
+
+#### Static Methods
+
+* `is(obj: any): boolean` Checks if an object is `Headers`
+* `from(obj: HeadersObject | string[]): Headers` Return a `Headers` instance from supported inputs
+
+### `Body`
+
+> Immutable representation of body used by `Request` and `Response`.
+
+#### Options
+
+```ts
+const response = new Body({})
+```
+
+* `rawBody?` Supported body type (`any`)
+* `headers?` Headers related to the body (e.g. `Content-Type`, `Content-Length`) (`Headers`)
+* `buffered?` Boolean indicating if the raw body is entirely in memory (`boolean`)
+
+#### Properties
+
+* `buffered` Indicates the raw body is entirely in memory (`boolean`)
+* `bodyUsed` Indicates the body has already been read (`boolean`)
+* `hasBody` Indicates the body has been set (not `undefined`) (`boolean`)
+* `headers` Set of body-related HTTP headers (`Headers`)
+
+#### Methods
+
+* `text(): Promise<string>` Returns body as a UTF-8 string
+* `buffer(): Promise<Buffer>` Returns the body as a `Buffer` instance (node.js)
+* `stream(): Readable` Returns a readable node.js stream (node.js)
+* `arrayBuffer(): Promise<ArrayBuffer>` Returns the body as an `ArrayBuffer` instance (browsers)
+
+#### Static Methods
+
+* `is(obj: any): boolean` Checks if an object is `Body`
+* `from(obj: Body | Stream | ArrayBuffer | string | object): Body` Return a `Body` instance from supported inputs
 
 ### `HttpError`
 
@@ -190,18 +228,14 @@ const error = new HttpError(message, errorCode, errorStatus, request, response, 
 If you're building the transports for Servie, there are some life cycle events you need to be aware of and emit yourself:
 
 1. Listen to the `error` event on `Request` for out-of-band errors and respond accordingly (e.g. app-level logging)
-2. Listen to the `abort` event on `Request` to destroy the HTTP request
+2. Listen to the `abort` event on `Request` to destroy the HTTP request/response
 3. Emit the `response` event on `Request` when handling the response
 4. Set `started === true` and `finished === true` on `Request` and `Response`, as appropriate
 5. Set `bytesTransferred` on `Request` and `Response` when monitoring HTTP transfer progress
 
 ## JavaScript
 
-This module is designed for ES5 environments, but also requires `Promise` to be available.
-
-## TypeScript
-
-This project is written using [TypeScript](https://github.com/Microsoft/TypeScript) and publishes the definitions directly to NPM.
+This module is designed for ES2015 environments and published with [TypeScript](https://github.com/Microsoft/TypeScript) definitions on NPM.
 
 ## License
 

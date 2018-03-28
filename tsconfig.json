@@ -1,27 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "es2015"
-    ],
+    "target": "es2015",
+    "lib": ["es2015", "dom"],
     "rootDir": "src",
     "outDir": "dist",
     "module": "commonjs",
-    "moduleResolution": "node",
+    "strict": true,
     "declaration": true,
-    "alwaysStrict": true,
-    "strictNullChecks": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "removeComments": false,
     "sourceMap": true,
     "inlineSources": true
-  },
-  "include": [
-    "src/**/*",
-    "typings/**/*"
-  ]
+  }
 }
