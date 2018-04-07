@@ -1,7 +1,6 @@
 // Standard interfaces.
 export * from './headers'
+export * from './body'
+export * from './base'
 export * from './request'
 export * from './response'
-export * from './body'
-export * from './error'
-export * from './base'

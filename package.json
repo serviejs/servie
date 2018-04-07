@@ -70,7 +70,6 @@
     "typescript": "^2.8.1"
   },
   "dependencies": {
-    "byte-length": "^1.0.2",
-    "make-error-cause": "^2.0.0"
+    "byte-length": "^1.0.2"
   }
 }

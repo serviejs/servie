@@ -1,6 +1,5 @@
 import { parse, Url } from 'url'
 import { Servie, ServieOptions } from './base'
-import { HttpError } from './error'
 
 /**
  * HTTP request connection information.
@@ -79,7 +78,7 @@ export class Request extends Servie implements RequestOptions {
 
     if (shouldAbort) {
       this.aborted = true
-      this.events.emit('abort', new HttpError('Request aborted', 'EABORT', 444, this))
+      this.events.emit('abort')
     }
 
     return shouldAbort
