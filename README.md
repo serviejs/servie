@@ -19,8 +19,7 @@ npm install servie --save
 * [`servie-lambda`](https://github.com/serviejs/servie-lambda) Servie transport layer for AWS Lambda
 * [`servie-http`](https://github.com/serviejs/servie-http) Servie transport layer for node.js HTTP
 * [`busboy`](https://www.npmjs.com/package/busboy) A streaming parser for HTML form data
-* [`qs`](https://github.com/ljharb/qs) and [`querystring`](https://nodejs.org/api/querystring.html) Parse the HTTP query string to an object
-* [`consolidate`](https://github.com/tj/consolidate.js) Template rendering
+* [`qs`](https://github.com/ljharb/qs) and [`querystring`](https://nodejs.org/api/querystring.html) Parse HTTP query string to object
 * [`get-body`](https://github.com/serviejs/get-body) General body parser for forms, JSON and text
 * [`servie-cors`](https://github.com/serviejs/servie-cors) CORS middleware for Servie
 * [`servie-route`](https://github.com/serviejs/servie-route) Routing middleware for Servie
@@ -30,6 +29,9 @@ npm install servie --save
 * [`servie-cookie-store`](https://github.com/serviejs/servie-cookie-store) API for managing client-side cookies
 * [`servie-errorhandler`](https://github.com/serviejs/servie-errorhandler) Standard error handler for transport layers
 * [`servie-finalhandler`](https://github.com/serviejs/servie-finalhandler) Standard final handler for transport layers
+* [`http-errors`](https://github.com/jshttp/http-errors) Create HTTP errors
+* [`boom`](https://github.com/hapijs/boom) HTTP-friendly error objects
+* [`consolidate`](https://github.com/tj/consolidate.js) Template rendering
 
 ### `Servie`
 
