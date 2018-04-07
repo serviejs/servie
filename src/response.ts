@@ -4,8 +4,8 @@ import { Servie, ServieOptions } from './base'
  * HTTP response class options.
  */
 export interface ResponseOptions extends ServieOptions {
-  status?: number
-  statusText?: string
+  statusCode?: number
+  statusMessage?: string
 }
 
 /**
@@ -13,20 +13,24 @@ export interface ResponseOptions extends ServieOptions {
  */
 export class Response extends Servie implements ResponseOptions {
 
-  status: number | undefined
-  statusText: string | undefined
+  statusCode: number
+  statusMessage?: string
 
-  constructor (options: ResponseOptions = {}) {
+  get ok () {
+    return this.statusCode >= 200 && this.statusCode < 300
+  }
+
+  constructor (options: ResponseOptions) {
     super(options)
 
-    this.status = options.status
-    this.statusText = options.statusText
+    this.statusCode = typeof options.statusCode === 'number' ? options.statusCode : 200
+    this.statusMessage = options.statusMessage
   }
 
   toJSON () {
     return {
-      status: this.status,
-      statusText: this.statusText,
+      statusCode: this.statusCode,
+      statusMessage: this.statusMessage,
       body: this.body.toJSON(),
       headers: this.headers.toJSON(),
       trailers: this.trailers.toJSON(),
