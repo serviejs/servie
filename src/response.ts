@@ -1,9 +1,9 @@
-import { ServieBase, ServieBaseOptions } from './base'
+import { Servie, ServieOptions } from './base'
 
 /**
  * HTTP response class options.
  */
-export interface ResponseOptions extends ServieBaseOptions {
+export interface ResponseOptions extends ServieOptions {
   status?: number
   statusText?: string
 }
@@ -11,7 +11,8 @@ export interface ResponseOptions extends ServieBaseOptions {
 /**
  * The HTTP response class.
  */
-export class Response extends ServieBase implements ResponseOptions {
+export class Response extends Servie implements ResponseOptions {
+
   status: number | undefined
   statusText: string | undefined
 

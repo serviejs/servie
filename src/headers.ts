@@ -1,8 +1,9 @@
+/**
+ * Object-style header definition.
+ */
 export interface HeadersObject {
   [key: string]: number | string | (string | number)[]
 }
-
-export type HeadersFrom = Headers | HeadersObject | string[] | null | undefined
 
 export class Headers {
 
@@ -23,15 +24,7 @@ export class Headers {
     return typeof obj === 'object' && Array.isArray(obj.rawHeaders)
   }
 
-  static from (value: HeadersFrom) {
-    if (Headers.is(value)) return new Headers(value.rawHeaders)
-    if (Array.isArray(value)) return new Headers(value)
-    if (value === undefined || value === null) return new Headers()
-
-    return new Headers().extend(value)
-  }
-
-  asObject (toLower = false) {
+  asObject (toLower = true) {
     const headers: HeadersObject = Object.create(null)
 
     for (let i = 0; i < this.rawHeaders.length; i += 2) {
@@ -140,8 +133,25 @@ export class Headers {
     return this
   }
 
+  clone (): this {
+    return new (this as any).constructor(this.rawHeaders)
+  }
+
   toJSON (): object {
     return this.asObject()
   }
 
+}
+
+export type CreateHeaders = Headers | HeadersObject | string[] | null
+
+/**
+ * Create a `Headers` object from raw data.
+ */
+export function createHeaders (value?: CreateHeaders): Headers {
+  if (value === undefined || value === null) return new Headers()
+  if (Headers.is(value)) return new Headers(value.rawHeaders)
+  if (Array.isArray(value)) return new Headers(value)
+
+  return new Headers().extend(value)
 }

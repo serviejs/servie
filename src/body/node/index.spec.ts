@@ -1,15 +1,15 @@
-import { BodyBase } from './base'
+import { createBody } from './index'
 
-describe('body base', () => {
+describe('body', () => {
   it('should create a new body class', () => {
-    const body = new BodyBase({ rawBody: '', buffered: true })
+    const body = createBody('')
 
     expect(body.hasBody).toBe(true)
     expect(body.buffered).toBe(true)
   })
 
   it('should stringify objects as json', () => {
-    const body = BodyBase.from({ test: true })
+    const body = createBody({ test: true })
 
     expect(body.rawBody).toEqual('{"test":true}')
     expect(body.hasBody).toEqual(true)
@@ -19,7 +19,7 @@ describe('body base', () => {
   it('should read and discard raw body', async () => {
     expect.assertions(6)
 
-    const body = BodyBase.from('test')
+    const body = createBody('test')
 
     expect(body.bodyUsed).toEqual(false)
     expect(body.rawBody).toEqual('test')
@@ -30,14 +30,23 @@ describe('body base', () => {
     await expect(body.text()).rejects.toEqual(new TypeError('Body already used'))
   })
 
-  it('should clone from another body instance', () => {
-    const body = BodyBase.from('test')
-    const bodyClone = BodyBase.from(body)
+  it('should clone body instance', () => {
+    const body = createBody('test')
+    const bodyClone = createBody(body)
 
     expect(body.bodyUsed).toEqual(true)
     expect(body.rawBody).toEqual(undefined)
 
     expect(bodyClone.bodyUsed).toEqual(false)
     expect(bodyClone.rawBody).toEqual('test')
+  })
+
+  it('should create a body from buffer', async () => {
+    const body = createBody(Buffer.from('test'))
+
+    expect(body.hasBody).toBe(true)
+    expect(body.buffered).toBe(true)
+    expect(body.bodyUsed).toBe(false)
+    expect(await body.text()).toEqual('test')
   })
 })

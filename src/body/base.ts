@@ -1,25 +1,20 @@
-import { byteLength } from 'byte-length'
-
 import { Headers } from '../headers'
 
-export interface BodyBaseOptions <T> {
-  rawBody?: T
+export interface BodyOptions <T> {
+  rawBody: T
   headers?: Headers
-  buffered?: boolean
 }
 
-export type RawBodyBase = string
-export type BodyBaseFrom = object | string | null | undefined
+export abstract class Body <T = any> implements BodyOptions<T> {
 
-export class BodyBase<T = any> implements BodyBaseOptions<T> {
-
-  readonly rawBody?: T
-  readonly buffered!: boolean
+  readonly rawBody!: T
   readonly bodyUsed!: boolean
   readonly hasBody!: boolean
   readonly headers!: Headers
 
-  constructor (options: BodyBaseOptions<T> = {}) {
+  readonly buffered: boolean = true
+
+  constructor (options: BodyOptions<T>) {
     Object.defineProperty(this, 'rawBody', {
       configurable: true,
       value: options.rawBody
@@ -33,69 +28,28 @@ export class BodyBase<T = any> implements BodyBaseOptions<T> {
     // These properties do not change after initialisation.
     Object.defineProperty(this, 'hasBody', { value: options.rawBody !== undefined })
     Object.defineProperty(this, 'headers', { value: options.headers || new Headers() })
-    Object.defineProperty(this, 'buffered', { value: !!options.buffered })
   }
 
-  static is (obj: any): obj is BodyBase {
+  static is (obj: any): obj is Body<any> {
     return typeof obj === 'object' &&
       typeof obj.useRawBody === 'function' &&
       typeof obj.bodyUsed === 'boolean'
   }
 
-  static from (obj: BodyBaseFrom): BodyBase<any> {
-    return new this(this.configure(obj))
-  }
-
-  static configure (obj: BodyBaseFrom): BodyBaseOptions<any> {
-    if (obj === undefined) return {}
-
-    if (BodyBase.is(obj)) {
-      return {
-        rawBody: obj.useRawBody(x => x),
-        buffered: obj.buffered,
-        headers: obj.headers
-      }
-    }
-
-    if (typeof obj === 'string') {
-      const headers = Headers.from({
-        'Content-Type': 'text/plain',
-        'Content-Length': byteLength(obj)
-      })
-
-      return { rawBody: obj, buffered: true, headers }
-    }
-
-    const str = JSON.stringify(obj)
-
-    const headers = Headers.from({
-      'Content-Type': 'application/json',
-      'Content-Length': byteLength(str)
-    })
-
-    return { rawBody: str, buffered: true, headers }
-  }
-
-  useRawBody <U> (fn: (rawBody: T | undefined) => U): U {
+  useRawBody () {
     if (this.bodyUsed) throw new TypeError('Body already used')
 
-    const result = fn(this.rawBody)
+    const rawBody = this.rawBody
     Object.defineProperty(this, 'rawBody', { value: undefined })
     Object.defineProperty(this, 'bodyUsed', { value: true })
-    return result
+    return rawBody
   }
 
-  async text (): Promise<string> {
-    return this.useRawBody(async rawBody => {
-      if (rawBody === undefined) return ''
-      if (typeof rawBody === 'string') return rawBody
+  clone (): this {
+    const rawBody = this.useRawBody()
+    const headers = this.headers
 
-      throw new TypeError('`Body#text()` not implemented')
-    })
-  }
-
-  async json () {
-    return JSON.parse(await this.text())
+    return new (this as any).constructor({ rawBody, headers })
   }
 
   toJSON (): object {
@@ -106,5 +60,11 @@ export class BodyBase<T = any> implements BodyBaseOptions<T> {
       headers: this.headers.toJSON()
     }
   }
+
+  abstract text (): Promise<string>
+
+  abstract json (): Promise<any>
+
+  abstract arrayBuffer (): Promise<ArrayBuffer>
 
 }

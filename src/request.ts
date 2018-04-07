@@ -1,6 +1,5 @@
 import { parse, Url } from 'url'
-
-import { ServieBase, ServieBaseOptions } from './base'
+import { Servie, ServieOptions } from './base'
 import { HttpError } from './error'
 
 /**
@@ -17,7 +16,7 @@ export interface Connection {
 /**
  * HTTP request class options.
  */
-export interface RequestOptions extends ServieBaseOptions {
+export interface RequestOptions extends ServieOptions {
   url: string
   method?: string
   connection?: Connection
@@ -26,7 +25,7 @@ export interface RequestOptions extends ServieBaseOptions {
 /**
  * The HTTP request class.
  */
-export class Request extends ServieBase implements RequestOptions {
+export class Request extends Servie implements RequestOptions {
 
   _url: string
   _Url?: Url

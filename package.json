@@ -10,7 +10,7 @@
     "logo.svg"
   ],
   "browser": {
-    "./dist/body/index": "./dist/body/browser"
+    "./dist/body/node": "./dist/body/browser"
   },
   "scripts": {
     "lint": "tslint \"src/**/*.ts\" --project tsconfig.json",
@@ -67,7 +67,7 @@
     "ts-jest": "^22.4.2",
     "tslint": "^5.9.1",
     "tslint-config-standard": "^7.0.0",
-    "typescript": "^2.7.2"
+    "typescript": "^2.8.1"
   },
   "dependencies": {
     "byte-length": "^1.0.2",
