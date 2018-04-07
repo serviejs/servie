@@ -1,5 +1,4 @@
 import { BaseError } from 'make-error-cause'
-
 import { Request } from './request'
 import { Response } from './response'
 import { HeadersObject } from './headers'

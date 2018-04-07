@@ -31,12 +31,12 @@ npm install servie --save
 * [`servie-errorhandler`](https://github.com/serviejs/servie-errorhandler) Standard error handler for transport layers
 * [`servie-finalhandler`](https://github.com/serviejs/servie-finalhandler) Standard final handler for transport layers
 
-### `ServieBase`
+### `Servie`
 
 > Base HTTP class for common request and response logic.
 
 ```ts
-import { ServieBase } from 'servie'
+import { Servie } from 'servie'
 ```
 
 #### Options
@@ -70,7 +70,7 @@ import { ServieBase } from 'servie'
 
 ### `Request`
 
-> HTTP class for encapsulating a `Request`, extends `ServieBase`.
+> HTTP class for encapsulating a `Request`, extends `Servie`.
 
 ```ts
 import { Request } from 'servie'
@@ -85,7 +85,7 @@ const request = new Request({
 })
 ```
 
-> Extends `ServieBase` options.
+> Extends `Servie` options.
 
 * `url` The HTTP request url (`string`)
 * `method?` The HTTP request method (`string`, default: `GET`)
@@ -111,7 +111,7 @@ const request = new Request({
 
 ### `Response`
 
-> HTTP class for encapsulating a `Response`, extends `ServieBase`.
+> HTTP class for encapsulating a `Response`, extends `Servie`.
 
 ```ts
 import { Response } from 'servie'
@@ -123,7 +123,7 @@ import { Response } from 'servie'
 const response = new Response({})
 ```
 
-> Extends `ServieBase` options.
+> Extends `Servie` options.
 
 * `status?` The HTTP response status code (`number`)
 * `statusText?` The HTTP response status message (`string`)
@@ -135,11 +135,13 @@ const response = new Response({})
 
 ### `Headers`
 
-> Used by `ServieBase` for `Request` and `Response` objects.
+> Used by `Servie` for `Request`, `Response` and `Body` objects.
 
 #### Options
 
 Take a single parameter with the headers in raw array format.
+
+**Tip:** Use `createHeaders(value?: any)` to create a `Headers` instance from raw data (e.g. `HeadersObject | string[] | null`).
 
 #### Properties
 
@@ -163,7 +165,6 @@ Take a single parameter with the headers in raw array format.
 #### Static Methods
 
 * `is(obj: any): boolean` Checks if an object is `Headers`
-* `from(obj: HeadersObject | string[]): Headers` Return a `Headers` instance from supported inputs
 
 ### `Body`
 
@@ -172,12 +173,15 @@ Take a single parameter with the headers in raw array format.
 #### Options
 
 ```ts
-const response = new Body({})
+const body = new Body({})
 ```
 
-* `rawBody?` Supported body type (`any`)
-* `headers?` Headers related to the body (e.g. `Content-Type`, `Content-Length`) (`Headers`)
-* `buffered?` Boolean indicating if the raw body is entirely in memory (`boolean`)
+* `rawBody` Supported body type (`any`)
+* `headers?` Headers related to the body, e.g. `Content-Type` (`Headers`)
+
+**Tip:** Use `createBody(value?: any)` to create a `Body` instance from raw data (e.g. `Readable | ReadableStream | Buffer | ArrayBuffer | object | string | null`).
+
+`Body` is the most complex part of Servie due to support for node.js and browsers. TypeScript also [lacks a good story](https://github.com/Microsoft/TypeScript/issues/7753) for universal modules with code paths offering different features (e.g. `Buffer` in node.js, `ReadableStream` in browsers) so there's some logic duplication to support requiring via `servie/dist/body/node` or via `servie/dist/body/browser`. If you are a module author supporting only browsers or node.js, feel free to use the `NodeBody` or `BrowserBody` exports to provide a better DX.
 
 #### Properties
 
@@ -189,14 +193,15 @@ const response = new Body({})
 #### Methods
 
 * `text(): Promise<string>` Returns body as a UTF-8 string
+* `json(): Promise<any>` Returns body parsed as JSON
+* `arrayBuffer(): Promise<ArrayBuffer>` Returns the body as an `ArrayBuffer` instance
 * `buffer(): Promise<Buffer>` Returns the body as a `Buffer` instance (node.js)
 * `stream(): Readable` Returns a readable node.js stream (node.js)
-* `arrayBuffer(): Promise<ArrayBuffer>` Returns the body as an `ArrayBuffer` instance (browsers)
+* `readableStream(): ReadableStream` Returns a readable WHATWG stream (browsers)
 
 #### Static Methods
 
 * `is(obj: any): boolean` Checks if an object is `Body`
-* `from(obj: Body | Stream | ArrayBuffer | string | object): Body` Return a `Body` instance from supported inputs
 
 ### `HttpError`
 

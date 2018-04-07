@@ -1,32 +1,31 @@
 import { EventEmitter } from 'events'
+import { Body, createBody } from './body'
+import { Headers, createHeaders } from './headers'
 
-import { Body } from './body'
-import { Headers } from './headers'
-
-export interface ServieBaseOptions {
+export interface ServieOptions {
   events?: EventEmitter
   headers?: Headers
   trailers?: Headers
   body?: Body
 }
 
-export class ServieBase implements ServieBaseOptions {
+export class Servie implements ServieOptions {
 
-  events: EventEmitter
+  readonly events: EventEmitter
   protected _body!: Body
   protected _headers!: Headers
   protected _trailers!: Headers
   protected _bytesTransferred = 0
 
-  constructor ({ trailers, headers, events, body }: ServieBaseOptions = {}) {
-    this.events = events || new EventEmitter()
-    this.headers = headers || new Headers()
-    this.trailers = trailers || new Headers()
-    this.body = body || new Body()
+  constructor (options: ServieOptions = {}) {
+    this.events = options.events || new EventEmitter()
+    this.headers = options.headers || createHeaders()
+    this.trailers = options.trailers || createHeaders()
+    this.body = options.body || createBody()
   }
 
   getHeaders () {
-    const headers = Headers.from(this.headers)
+    const headers = this.headers.clone()
     for (const [key, value] of this.body.headers.entries()) {
       if (!headers.has(key)) headers.append(key, value)
     }
