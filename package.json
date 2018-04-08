@@ -1,6 +1,6 @@
 {
   "name": "servie",
-  "version": "0.2.5",
+  "version": "1.0.0",
   "description": "Standard HTTP interfaces",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
