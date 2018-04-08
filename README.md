@@ -107,7 +107,7 @@ const request = new Request({
 #### Events
 
 * `abort` Request aborted and transport _MUST_ handle
-* `error` Out-of-band error occurred and transport _MUST_ handle
+* `error` An out-of-band error occurred and transport _MUST_ handle
 * `response` The corresponding `Response` has started
 * `connection` Emitted when connection information becomes available
 
@@ -205,31 +205,6 @@ const body = new Body({})
 #### Static Methods
 
 * `is(obj: any): boolean` Checks if an object is `Body`
-
-### `HttpError`
-
-> Internally and externally triggered HTTP errors.
-
-#### Arguments
-
-```ts
-const message = 'Request timed out'
-const errorCode = 'ETIMEOUT'
-const errorStatus = 444 // "Connection closed without response"
-const errorHeaders = { 'X-Timeout': '1000' }
-
-const error = new HttpError(message, errorCode, errorStatus, request, response, cause, errorHeaders)
-```
-
-#### Properties
-
-* `message` - standard error message (`string`)
-* `code` - identifiable error code (`string`)
-* `status` - HTTP status code for middleware handlers (`number`)
-* `request` - `Request` instance related the error (`Request`)
-* `response` - `Response` instance related to the error (`Response`, optional)
-* `cause` - underlying error triggering the HTTP error (`Error`, optional)
-* `headers` - map of headers for middleware handlers (`object`, optional)
 
 ## Implementers
 
