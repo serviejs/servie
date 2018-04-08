@@ -127,13 +127,14 @@ const response = new Response({})
 
 > Extends `Servie` options.
 
-* `status?` The HTTP response status code (`number`)
-* `statusText?` The HTTP response status message (`string`)
+* `statusCode?` The HTTP response status code (`number`)
+* `statusMessage?` The HTTP response status message (`string`)
 
 #### Properties
 
-* `status?` The HTTP response status code (`number`)
-* `statusText?` The HTTP response status message (`string`)
+* `statusCode` The HTTP response status code (`number`)
+* `statusMessage?` The HTTP response status message (`string`)
+* `ok` Returns whether response was successful (status in range 200-299) (`boolean`)
 
 ### `Headers`
 
