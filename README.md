@@ -183,7 +183,7 @@ const body = new Body({})
 
 **Tip:** Use `createBody(value?: any)` to create a `Body` instance from raw data (e.g. `Readable | ReadableStream | Buffer | ArrayBuffer | object | string | null`).
 
-`Body` is the most complex part of Servie due to support for node.js and browsers. TypeScript also [lacks a good story](https://github.com/Microsoft/TypeScript/issues/7753) for universal modules with code paths offering different features (e.g. `Buffer` in node.js, `ReadableStream` in browsers) so there's some logic duplication to support requiring via `servie/dist/body/node` or via `servie/dist/body/browser`. If you are a module author supporting only browsers or node.js, feel free to use the `NodeBody` or `BrowserBody` exports to provide a better DX.
+> `Body` is the most complex part of Servie due to support for node.js and browsers. TypeScript is also [missing a good story](https://github.com/Microsoft/TypeScript/issues/7753) for universal modules with code paths offering different features (e.g. `Buffer` in node.js, `ReadableStream` in browsers), so there's some logic duplication to support require via `servie/dist/body/node` and `servie/dist/body/browser`. If you are a module author only supporting browsers or node.js, feel free to use the `NodeBody` or `BrowserBody` exports to provide a better DX.
 
 #### Properties
 
