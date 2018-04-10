@@ -36,6 +36,7 @@ describe('body', () => {
 
     expect(body.bodyUsed).toEqual(true)
     expect(body.rawBody).toEqual(undefined)
+    expect(body.headers.get('content-length')).toEqual('4')
 
     expect(bodyClone.bodyUsed).toEqual(false)
     expect(bodyClone.rawBody).toEqual('test')
