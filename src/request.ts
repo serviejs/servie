@@ -28,13 +28,13 @@ export class Request extends Servie implements RequestOptions {
 
   _url: string
   _Url?: Url
-  method?: string
+  method: string
 
   constructor (options: RequestOptions) {
     super(options)
 
     this._url = options.url
-    this.method = options.method
+    this.method = options.method || 'GET'
     this.connection = options.connection
   }
 
