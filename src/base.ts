@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events'
-import { Body, createBody } from './body'
 import { Headers, createHeaders } from './headers'
+import { BodyCommon as Body } from './body'
+import { createBody } from './body/universal'
 
 export interface ServieOptions {
   events?: EventEmitter

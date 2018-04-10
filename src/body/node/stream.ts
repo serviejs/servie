@@ -1,13 +1,12 @@
 import { Readable } from 'stream'
-import { NodeBody } from './base'
+import { Body } from './base'
 
-export class StreamBody extends NodeBody<Readable> {
+export class StreamBody extends Body<Readable> {
 
   readonly buffered = false
 
   async text () {
-    const buffer = await this.buffer()
-    return buffer.toString('utf8')
+    return this.buffer().then(x => x.toString('utf8'))
   }
 
   buffer (maxBufferSize: number = Infinity) {

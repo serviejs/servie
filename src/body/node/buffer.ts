@@ -1,15 +1,14 @@
 import { Readable } from 'stream'
-import { NodeBody } from './base'
+import { Body } from './base'
 
-export class BufferBody extends NodeBody<Buffer> {
+export class BufferBody extends Body<Buffer> {
 
-  async text () {
-    const buffer = this.useRawBody()
-    return buffer.toString('utf8')
+  text () {
+    return Promise.resolve(this.useRawBody().toString('utf8'))
   }
 
-  async buffer () {
-    return this.useRawBody()
+  buffer () {
+    return Promise.resolve(this.useRawBody())
   }
 
   stream () {

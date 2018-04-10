@@ -140,11 +140,17 @@ const response = new Response({})
 
 > Used by `Servie` for `Request`, `Response` and `Body` objects.
 
+```ts
+import { Headers, createHeaders } from 'servie'
+```
+
 #### Options
 
-Take a single parameter with the headers in raw array format.
+```ts
+const headers = createHeaders(...) // new Headers([...])
+```
 
-**Tip:** Use `createHeaders(value?: any)` to create a `Headers` instance from raw data (e.g. `HeadersObject | string[] | null`).
+Create `Headers` instance from raw value (e.g. `HeadersObject | string[] | null`).
 
 #### Properties
 
@@ -171,18 +177,23 @@ Take a single parameter with the headers in raw array format.
 
 ### `Body`
 
-> Immutable representation of body used by `Request` and `Response`.
+> Immutable representation of the body used by `Request` and `Response`.
+
+```ts
+import { Body, createBody } from 'servie/dist/body/{node,browser,universal}'
+```
+
+> `Body` is a complex part of Servie due to support for browsers and node.js together. TypeScript is also [missing a good story](https://github.com/Microsoft/TypeScript/issues/7753) for universal modules with code paths offering different features (e.g. streams in node.js, native `ReadableStream` in browsers), so it's required that you import a specific version for your environment.
+
+**Note:** Each endpoint (`body/node`, `body/browser`, `body/universal`) offers the same basic API (`Body`, `createBody`). Universal relies on module bundlers (e.g. webpack) and [`package.json#browser`](package.json) to switch the node.js API with the browser API at bundle time. TypeScript _will_ require `dom` types since the interface returns a union of possible bodies (`node` and `browser`).
 
 #### Options
 
 ```ts
-const body = new Body({})
+const body = createBody(...) // new Body({ rawBody: ... })
 ```
 
-* `rawBody` Supported body type (`any`)
-* `headers?` Headers related to the body, e.g. `Content-Type` (`Headers`)
-
-**Tip:** Use `createBody(value?: any)` to create a `Body` instance from raw data (e.g. `Readable | ReadableStream | Buffer | ArrayBuffer | object | string | null`).
+Create a `Body` instance from raw data (e.g. `Readable | ReadableStream | Buffer | ArrayBuffer | object | string | null`).
 
 > `Body` is the most complex part of Servie due to support for node.js and browsers. TypeScript is also [missing a good story](https://github.com/Microsoft/TypeScript/issues/7753) for universal modules with code paths offering different features (e.g. `Buffer` in node.js, `ReadableStream` in browsers), so there's some logic duplication to support require via `servie/dist/body/node` and `servie/dist/body/browser`. If you are a module author only supporting browsers or node.js, feel free to use the `NodeBody` or `BrowserBody` exports to provide a better DX.
 

@@ -1,6 +1,6 @@
 import { Servie } from './base'
 import { Headers, createHeaders } from './headers'
-import { Body, createBody } from './body'
+import { Body, createBody } from './body/universal'
 
 describe('servie base', () => {
   it('should contain base properties', () => {

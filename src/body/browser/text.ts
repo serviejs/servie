@@ -1,19 +1,19 @@
-import { BrowserBody } from './base'
+import { Body } from './base'
 
 declare const TextEncoder: {
   new (encoding: string): { encode (str: string): Uint8Array }
 }
 
-export class TextBody extends BrowserBody<string> {
+export class TextBody extends Body<string> {
 
-  async text () {
-    return this.useRawBody()
+  text () {
+    return Promise.resolve(this.useRawBody())
   }
 
-  async arrayBuffer () {
+  arrayBuffer () {
     const rawBody = this.useRawBody()
     const encoder = new TextEncoder('utf-8')
-    return encoder.encode(rawBody).buffer
+    return Promise.resolve(encoder.encode(rawBody).buffer)
   }
 
   readableStream (): ReadableStream {

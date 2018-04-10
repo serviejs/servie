@@ -1,17 +1,18 @@
-import { BrowserBody } from './base'
+import { byteLength } from 'byte-length'
+import { Body } from './base'
 import { EmptyBody } from './empty'
 import { TextBody } from './text'
 import { ArrayBufferBody } from './array-buffer'
 import { StreamBody } from './stream'
 import { createHeaders } from '../../headers'
 
-export { BrowserBody, EmptyBody, TextBody, ArrayBufferBody, StreamBody }
+export { Body, EmptyBody, TextBody, ArrayBufferBody, StreamBody }
 
-export type CreateBody = BrowserBody<any> | ReadableStream | ArrayBuffer | object | string | null
+export type CreateBody = Body<any> | ReadableStream | ArrayBuffer | object | string | null
 
-export function createBody (value?: CreateBody): BrowserBody<any> {
+export function createBody (value?: CreateBody): Body<any> {
   if (value === undefined) return new EmptyBody({ rawBody: undefined })
-  if (BrowserBody.is(value)) return value.clone()
+  if (Body.is(value)) return value.clone()
 
   if (value instanceof ArrayBuffer) {
     const headers = createHeaders({
@@ -31,7 +32,7 @@ export function createBody (value?: CreateBody): BrowserBody<any> {
   if (typeof value === 'string') {
     const headers = createHeaders({
       'Content-Type': 'text/plain',
-      'Content-Length': Buffer.byteLength(value)
+      'Content-Length': byteLength(value)
     })
 
     return new TextBody({ rawBody: value, headers })
@@ -41,7 +42,7 @@ export function createBody (value?: CreateBody): BrowserBody<any> {
 
   const headers = createHeaders({
     'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(str)
+    'Content-Length': byteLength(str)
   })
 
   return new TextBody({ rawBody: str, headers })

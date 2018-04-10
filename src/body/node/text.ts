@@ -1,7 +1,7 @@
 import { Readable } from 'stream'
-import { NodeBody } from './base'
+import { Body } from './base'
 
-export class TextBody extends NodeBody<string> {
+export class TextBody extends Body<string> {
 
   async text () {
     return this.useRawBody()

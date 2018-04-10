@@ -10,13 +10,15 @@
     "logo.svg"
   ],
   "browser": {
-    "./dist/body/node": "./dist/body/browser"
+    "./dist/body/node/index.js": "./dist/body/browser/index.js"
   },
   "scripts": {
     "lint": "tslint \"src/**/*.ts\" --project tsconfig.json",
     "build": "rm -rf dist/ && tsc",
     "specs": "jest --coverage",
-    "test": "npm run -s lint && npm run -s build && npm run -s specs",
+    "test": "npm run lint && npm run build && npm run specs && npm run bundle && npm run bundle:size",
+    "bundle": "browserify . -o browser.js",
+    "bundle:size": "wc -c < browser.js",
     "prepublish": "npm run build"
   },
   "repository": {
@@ -62,6 +64,7 @@
   "devDependencies": {
     "@types/jest": "^22.2.2",
     "@types/node": "^9.6.0",
+    "browserify": "^16.1.1",
     "jest": "^22.4.3",
     "rimraf": "^2.6.2",
     "ts-jest": "^22.4.2",

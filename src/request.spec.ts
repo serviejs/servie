@@ -1,5 +1,5 @@
 import { Request } from './request'
-import { createBody, NodeBody } from './body/node'
+import { createBody, Body } from './body/node'
 
 describe('servie request', () => {
   it('should have a url', () => {
@@ -20,7 +20,7 @@ describe('servie request', () => {
   it('should infer the correct body type', async () => {
     const req = new Request({ url: '/', body: createBody('test') })
 
-    if (req.body instanceof NodeBody) {
+    if (req.body instanceof Body) {
       expect(await req.body.buffer()).toEqual(Buffer.from('test'))
     }
   })

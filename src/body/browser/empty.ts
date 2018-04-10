@@ -1,13 +1,13 @@
-import { BrowserBody } from './base'
+import { Body } from './base'
 
-export class EmptyBody extends BrowserBody<undefined> {
+export class EmptyBody extends Body<undefined> {
 
-  async text () {
-    return ''
+  text () {
+    return Promise.resolve('')
   }
 
-  async arrayBuffer () {
-    return new ArrayBuffer(0)
+  arrayBuffer () {
+    return Promise.resolve(new ArrayBuffer(0))
   }
 
   readableStream (): ReadableStream {

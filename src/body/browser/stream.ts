@@ -1,10 +1,10 @@
-import { BrowserBody } from './base'
+import { Body } from './base'
 
 declare const TextDecoder: {
   new (encoding: string): { decode (view: DataView): string }
 }
 
-export class StreamBody extends BrowserBody<ReadableStream> {
+export class StreamBody extends Body<ReadableStream> {
 
   readonly buffered = false
 

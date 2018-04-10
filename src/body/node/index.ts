@@ -1,22 +1,23 @@
 import { Readable } from 'stream'
-import { NodeBody } from './base'
+import { byteLength } from 'byte-length'
+import { Body } from './base'
 import { EmptyBody } from './empty'
 import { TextBody } from './text'
 import { BufferBody } from './buffer'
 import { StreamBody } from './stream'
 import { createHeaders, HeadersObject } from '../../headers'
 
-export { NodeBody, EmptyBody, TextBody, BufferBody, StreamBody }
+export { Body, EmptyBody, TextBody, BufferBody, StreamBody }
 
-export type CreateBody = NodeBody<any> | Readable | Buffer | ArrayBuffer | object | string | null
+export type CreateBody = Body<any> | Readable | Buffer | ArrayBuffer | object | string | null
 
 function isStream (stream: any): stream is Readable & { getHeaders? (): HeadersObject } {
   return stream !== null && typeof stream === 'object' && typeof stream.pipe === 'function'
 }
 
-export function createBody (value?: CreateBody): NodeBody<any> {
+export function createBody (value?: CreateBody): Body<any> {
   if (value === undefined) return new EmptyBody({ rawBody: undefined })
-  if (NodeBody.is(value)) return value.clone()
+  if (Body.is(value)) return value.clone()
 
   if (Buffer.isBuffer(value)) {
     const headers = createHeaders({
@@ -47,7 +48,7 @@ export function createBody (value?: CreateBody): NodeBody<any> {
   if (typeof value === 'string') {
     const headers = createHeaders({
       'Content-Type': 'text/plain',
-      'Content-Length': Buffer.byteLength(value)
+      'Content-Length': byteLength(value)
     })
 
     return new TextBody({ rawBody: value, headers })
@@ -57,7 +58,7 @@ export function createBody (value?: CreateBody): NodeBody<any> {
 
   const headers = createHeaders({
     'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(str)
+    'Content-Length': byteLength(str)
   })
 
   return new TextBody({ rawBody: str, headers })

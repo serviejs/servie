@@ -1,20 +1,20 @@
-import { BrowserBody } from './base'
+import { Body } from './base'
 
 declare const TextDecoder: {
   new (encoding: string): { decode (view: DataView): string }
 }
 
-export class ArrayBufferBody extends BrowserBody<ArrayBuffer> {
+export class ArrayBufferBody extends Body<ArrayBuffer> {
 
-  async text () {
+  text () {
     const rawBody = this.useRawBody()
     const view = new DataView(rawBody)
     const decoder = new TextDecoder('utf-8')
-    return decoder.decode(view)
+    return Promise.resolve(decoder.decode(view))
   }
 
-  async arrayBuffer () {
-    return this.useRawBody()
+  arrayBuffer () {
+    return Promise.resolve(this.useRawBody())
   }
 
   readableStream (): ReadableStream {

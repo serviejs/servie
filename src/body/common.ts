@@ -1,11 +1,11 @@
 import { Headers } from '../headers'
 
-export interface BodyOptions <T> {
+export interface BodyCommonOptions <T> {
   rawBody: T
   headers?: Headers
 }
 
-export abstract class Body <T = any> implements BodyOptions<T> {
+export abstract class BodyCommon <T = any> implements BodyCommonOptions<T> {
 
   readonly rawBody!: T
   readonly bodyUsed!: boolean
@@ -14,7 +14,7 @@ export abstract class Body <T = any> implements BodyOptions<T> {
 
   readonly buffered: boolean = true
 
-  constructor (options: BodyOptions<T>) {
+  constructor (options: BodyCommonOptions<T>) {
     Object.defineProperty(this, 'rawBody', {
       configurable: true,
       value: options.rawBody
@@ -30,7 +30,7 @@ export abstract class Body <T = any> implements BodyOptions<T> {
     Object.defineProperty(this, 'headers', { value: options.headers || new Headers() })
   }
 
-  static is (obj: any): obj is Body<any> {
+  static is (obj: any): obj is BodyCommon<any> {
     return typeof obj === 'object' &&
       typeof obj.useRawBody === 'function' &&
       typeof obj.bodyUsed === 'boolean'

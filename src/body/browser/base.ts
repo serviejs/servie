@@ -1,11 +1,11 @@
-import { Body } from '../base'
+import { BodyCommon } from '../common'
 
-export abstract class BrowserBody <T = any> extends Body<T> {
+export abstract class Body <T = any> extends BodyCommon<T> {
 
   abstract readableStream (): ReadableStream
 
-  async json () {
-    return JSON.parse(await this.text())
+  json () {
+    return this.text().then(x => JSON.parse(x))
   }
 
 }

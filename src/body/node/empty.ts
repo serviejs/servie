@@ -1,21 +1,21 @@
 import { Readable } from 'stream'
-import { NodeBody } from './base'
+import { Body } from './base'
 
-export class EmptyBody extends NodeBody<undefined> {
+export class EmptyBody extends Body<undefined> {
 
-  async text () {
+  text () {
     this.useRawBody()
-    return ''
+    return Promise.resolve('')
   }
 
-  async json () {
+  json () {
     this.useRawBody()
-    return null
+    return Promise.resolve(null)
   }
 
-  async buffer () {
+  buffer () {
     this.useRawBody()
-    return Buffer.alloc(0)
+    return Promise.resolve(Buffer.alloc(0))
   }
 
   stream () {
