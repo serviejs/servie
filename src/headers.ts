@@ -1,8 +1,20 @@
 /**
- * Object-style header definition.
+ * Valid header values for appending to map.
+ */
+export type HeaderValues = string | number | (string | number)[]
+
+/**
+ * Loose object-style header definition.
+ */
+export interface HeadersValuesObject {
+  [key: string]: HeaderValues
+}
+
+/**
+ * Stricter object-style headers for working with node.js.
  */
 export interface HeadersObject {
-  [key: string]: number | string | (string | number)[]
+  [key: string]: string | string[]
 }
 
 export class Headers {
@@ -42,13 +54,13 @@ export class Headers {
     return headers
   }
 
-  set (name: string, value: string | number | (string | number)[]): this {
+  set (name: string, value: HeaderValues): this {
     this.delete(name)
     this.append(name, value)
     return this
   }
 
-  append (name: string, value: string | number | (string | number)[]): this {
+  append (name: string, value: HeaderValues): this {
     this.headerNames.add(name.toLowerCase())
 
     if (Array.isArray(value)) {
@@ -127,7 +139,7 @@ export class Headers {
     }
   }
 
-  extend (obj: HeadersObject) {
+  extend (obj: HeadersValuesObject) {
     for (const key of Object.keys(obj)) this.append(key, obj[key])
 
     return this
@@ -143,7 +155,7 @@ export class Headers {
 
 }
 
-export type CreateHeaders = Headers | HeadersObject | string[] | null
+export type CreateHeaders = Headers | HeadersValuesObject | string[] | null
 
 /**
  * Create a `Headers` object from raw data.

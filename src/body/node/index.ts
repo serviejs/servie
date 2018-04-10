@@ -5,13 +5,13 @@ import { EmptyBody } from './empty'
 import { TextBody } from './text'
 import { BufferBody } from './buffer'
 import { StreamBody } from './stream'
-import { createHeaders, HeadersObject } from '../../headers'
+import { createHeaders, HeadersValuesObject } from '../../headers'
 
 export { Body, EmptyBody, TextBody, BufferBody, StreamBody }
 
 export type CreateBody = Body<any> | Readable | Buffer | ArrayBuffer | object | string | null
 
-function isStream (stream: any): stream is Readable & { getHeaders? (): HeadersObject } {
+function isStream (stream: any): stream is Readable & { getHeaders? (): HeadersValuesObject } {
   return stream !== null && typeof stream === 'object' && typeof stream.pipe === 'function'
 }
 
