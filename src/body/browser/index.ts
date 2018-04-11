@@ -8,7 +8,7 @@ import { createHeaders } from '../../headers'
 
 export { Body, EmptyBody, TextBody, ArrayBufferBody, StreamBody }
 
-export type CreateBody = Body<any> | ReadableStream | ArrayBuffer | object | string | null
+export type CreateBody = Body<any> | ReadableStream | ArrayBuffer | object | string | null | undefined
 
 export function createBody (value?: CreateBody): Body<any> {
   if (value === undefined) return new EmptyBody({ rawBody: undefined })

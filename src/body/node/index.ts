@@ -9,7 +9,7 @@ import { createHeaders, HeadersValuesObject } from '../../headers'
 
 export { Body, EmptyBody, TextBody, BufferBody, StreamBody }
 
-export type CreateBody = Body<any> | Readable | Buffer | ArrayBuffer | object | string | null
+export type CreateBody = Body<any> | Readable | Buffer | ArrayBuffer | object | string | null | undefined
 
 function isStream (stream: any): stream is Readable & { getHeaders? (): HeadersValuesObject } {
   return stream !== null && typeof stream === 'object' && typeof stream.pipe === 'function'
