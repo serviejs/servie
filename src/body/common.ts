@@ -11,12 +11,12 @@ export const kBodyUsed = Symbol('bodyUsed')
 
 export abstract class BodyCommon <T = any> implements BodyCommonOptions<T> {
 
-  [kRawBody]: T | undefined
-  [kBodyUsed]: boolean = false
-
   readonly headers: Headers
   readonly hasBody: boolean = true
   readonly buffered: boolean = true
+
+  protected [kRawBody]: T | undefined
+  protected [kBodyUsed]: boolean = false
 
   constructor (options: BodyCommonOptions<T>) {
     this[kRawBody] = options.rawBody

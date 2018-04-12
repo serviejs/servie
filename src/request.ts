@@ -21,34 +21,38 @@ export interface RequestOptions extends ServieOptions {
   connection?: Connection
 }
 
+export const kUrl = Symbol('url')
+export const kUrlObject = Symbol('urlObject')
+
 /**
  * The HTTP request class.
  */
 export class Request extends Servie implements RequestOptions {
 
-  _url: string
-  _Url?: Url
   method: string
+
+  protected [kUrl]: string
+  protected [kUrlObject]?: Url
 
   constructor (options: RequestOptions) {
     super(options)
 
-    this._url = options.url
+    this[kUrl] = options.url
     this.method = options.method || 'GET'
     this.connection = options.connection
   }
 
   get url () {
-    return this._url
+    return this[kUrl]
   }
 
   set url (url: string) {
-    this._url = url
-    this._Url = undefined
+    this[kUrl] = url
+    this[kUrlObject] = undefined
   }
 
   get Url () {
-    return this._Url || (this._Url = parse(this._url, false, true))
+    return this[kUrlObject] || (this[kUrlObject] = parse(this.url, false, true))
   }
 
   get connection (): Connection | undefined {
@@ -106,7 +110,8 @@ export class Request extends Servie implements RequestOptions {
       connection: this.connection,
       events: this.events,
       body: this.body.clone(),
-      headers: this.headers.clone()
+      headers: this.headers.clone(),
+      trailers: this.trailers.then(x => x.clone())
     })
   }
 

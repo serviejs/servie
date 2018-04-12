@@ -33,7 +33,6 @@ export class Response extends Servie implements ResponseOptions {
       statusMessage: this.statusMessage,
       body: this.body.toJSON(),
       headers: this.headers.toJSON(),
-      trailers: this.trailers.toJSON(),
       started: this.started,
       finished: this.finished,
       bytesTransferred: this.bytesTransferred
@@ -48,7 +47,8 @@ export class Response extends Servie implements ResponseOptions {
       statusMessage: this.statusMessage,
       events: this.events,
       body: this.body.clone(),
-      headers: this.headers.clone()
+      headers: this.headers.clone(),
+      trailers: this.trailers.then(x => x.clone())
     })
   }
 

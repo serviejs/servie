@@ -10,6 +10,9 @@ export interface HeadersValuesObject {
   [key: string]: HeaderValues
 }
 
+export const kRawHeaders = Symbol('rawHeaders')
+export const kHeaderNames = Symbol('headerNames')
+
 /**
  * Stricter object-style headers for working with node.js.
  */
@@ -19,13 +22,16 @@ export interface HeadersObject {
 
 export class Headers {
 
-  rawHeaders: string[] = []
-  headerNames: Set<string> = new Set()
+  protected [kRawHeaders]: string[]
+  protected [kHeaderNames]: Set<string>
 
   constructor (rawHeaders: string[] = []) {
     if (rawHeaders.length % 2 === 1) {
       throw new TypeError(`Expected headers length to be even, got ${rawHeaders.length}`)
     }
+
+    this[kRawHeaders] = []
+    this[kHeaderNames] = new Set()
 
     for (let i = 0; i < rawHeaders.length; i += 2) {
       this.append(rawHeaders[i], rawHeaders[i + 1])
@@ -36,18 +42,23 @@ export class Headers {
     return typeof obj === 'object' && Array.isArray(obj.rawHeaders)
   }
 
+  get rawHeaders () {
+    return this[kRawHeaders]
+  }
+
   asObject (toLower = true) {
     const headers: HeadersObject = Object.create(null)
+    const rawHeaders = this[kRawHeaders]
 
-    for (let i = 0; i < this.rawHeaders.length; i += 2) {
-      const key = toLower ? this.rawHeaders[i].toLowerCase() : this.rawHeaders[i]
+    for (let i = 0; i < rawHeaders.length; i += 2) {
+      const key = toLower ? rawHeaders[i].toLowerCase() : rawHeaders[i]
 
       if (headers[key] === undefined) { // tslint:disable-line
-        headers[key] = this.rawHeaders[i + 1]
+        headers[key] = rawHeaders[i + 1]
       } else if (typeof headers[key] === 'string') {
-        headers[key] = [headers[key] as string, this.rawHeaders[i + 1]]
+        headers[key] = [headers[key] as string, rawHeaders[i + 1]]
       } else {
-        (headers[key] as string[]).push(this.rawHeaders[i + 1])
+        (headers[key] as string[]).push(rawHeaders[i + 1])
       }
     }
 
@@ -61,14 +72,14 @@ export class Headers {
   }
 
   append (name: string, value: HeaderValues): this {
-    this.headerNames.add(name.toLowerCase())
+    this[kHeaderNames].add(name.toLowerCase())
 
     if (Array.isArray(value)) {
       for (const item of value) {
-        this.rawHeaders.push(name, String(item))
+        this[kRawHeaders].push(name, String(item))
       }
     } else {
-      this.rawHeaders.push(name, String(value))
+      this[kRawHeaders].push(name, String(value))
     }
 
     return this
@@ -77,10 +88,12 @@ export class Headers {
   get (name: string): string | undefined {
     const lowered = name.toLowerCase()
 
-    if (this.headerNames.has(lowered)) {
-      for (let i = 0; i < this.rawHeaders.length; i += 2) {
-        if (this.rawHeaders[i].toLowerCase() === lowered) {
-          return this.rawHeaders[i + 1]
+    if (this[kHeaderNames].has(lowered)) {
+      const rawHeaders = this[kRawHeaders]
+
+      for (let i = 0; i < rawHeaders.length; i += 2) {
+        if (rawHeaders[i].toLowerCase() === lowered) {
+          return rawHeaders[i + 1]
         }
       }
     }
@@ -92,7 +105,7 @@ export class Headers {
     const lowered = name.toLowerCase()
     const result: string[] = []
 
-    if (this.headerNames.has(lowered)) {
+    if (this[kHeaderNames].has(lowered)) {
       for (let i = 0; i < this.rawHeaders.length; i += 2) {
         if (this.rawHeaders[i].toLowerCase() === lowered) {
           result.push(this.rawHeaders[i + 1])
@@ -104,18 +117,18 @@ export class Headers {
   }
 
   has (name: string): boolean {
-    return this.headerNames.has(name.toLowerCase())
+    return this[kHeaderNames].has(name.toLowerCase())
   }
 
   delete (name: string) {
     const lowered = name.toLowerCase()
 
-    if (this.headerNames.has(lowered)) {
-      this.headerNames.delete(lowered)
+    if (this[kHeaderNames].has(lowered)) {
+      this[kHeaderNames].delete(lowered)
 
-      for (let i = 0; i < this.rawHeaders.length; i += 2) {
-        if (this.rawHeaders[i].toLowerCase() === lowered) {
-          this.rawHeaders.splice(i, 2)
+      for (let i = 0; i < this[kRawHeaders].length; i += 2) {
+        if (this[kRawHeaders][i].toLowerCase() === lowered) {
+          this[kRawHeaders].splice(i, 2)
         }
       }
     }
@@ -124,19 +137,28 @@ export class Headers {
   }
 
   keys () {
-    return this.headerNames.values()
+    return this[kHeaderNames].values()
   }
 
   * entries () {
-    for (let i = 0; i < this.rawHeaders.length; i += 2) {
-      yield [this.rawHeaders[i], this.rawHeaders[i + 1]]
+    const rawHeaders = this[kRawHeaders]
+
+    for (let i = 0; i < rawHeaders.length; i += 2) {
+      yield [rawHeaders[i], rawHeaders[i + 1]]
     }
   }
 
   * values () {
-    for (let i = 1; i < this.rawHeaders.length; i += 2) {
-      yield this.rawHeaders[i]
+    const rawHeaders = this[kRawHeaders]
+
+    for (let i = 1; i < rawHeaders.length; i += 2) {
+      yield rawHeaders[i]
     }
+  }
+
+  clear () {
+    this[kRawHeaders].splice(0, this[kRawHeaders].length)
+    this[kHeaderNames].clear()
   }
 
   extend (obj: HeadersValuesObject) {
