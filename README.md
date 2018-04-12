@@ -170,6 +170,7 @@ Create `Headers` instance from raw value (e.g. `HeadersObject | string[] | null`
 * `keys()` Iterable of the available header names
 * `values()` Iterable of header values
 * `entries()` Iterable of headers as `[key, value]`
+* `clear()` Clears the headers instance
 * `clone()` Clones the `Headers` instance
 
 #### Static Methods
