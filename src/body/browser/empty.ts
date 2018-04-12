@@ -2,6 +2,8 @@ import { Body } from './base'
 
 export class EmptyBody extends Body<undefined> {
 
+  readonly hasBody = false
+
   text () {
     return Promise.resolve('')
   }
@@ -12,6 +14,13 @@ export class EmptyBody extends Body<undefined> {
 
   readableStream (): ReadableStream {
     throw new TypeError('`EmptyBody#readableStream()` not implemented')
+  }
+
+  clone () {
+    return new EmptyBody({
+      rawBody: this.rawBody,
+      headers: this.headers.clone()
+    })
   }
 
 }

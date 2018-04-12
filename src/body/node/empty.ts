@@ -3,6 +3,8 @@ import { Body } from './base'
 
 export class EmptyBody extends Body<undefined> {
 
+  readonly hasBody = false
+
   text () {
     this.useRawBody()
     return Promise.resolve('')
@@ -21,6 +23,13 @@ export class EmptyBody extends Body<undefined> {
   stream () {
     this.useRawBody()
     return new Readable({ read () { this.push(null) } })
+  }
+
+  clone () {
+    return new EmptyBody({
+      rawBody: this.rawBody,
+      headers: this.headers.clone()
+    })
   }
 
 }

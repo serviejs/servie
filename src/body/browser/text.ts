@@ -20,4 +20,11 @@ export class TextBody extends Body<string> {
     throw new TypeError('`TextBody#readableStream()` not implemented')
   }
 
+  clone () {
+    return new TextBody({
+      rawBody: this.rawBody,
+      headers: this.headers.clone()
+    })
+  }
+
 }

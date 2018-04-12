@@ -10,7 +10,7 @@ export interface ServieOptions {
   body?: Body
 }
 
-export class Servie implements ServieOptions {
+export abstract class Servie implements ServieOptions {
 
   readonly events: EventEmitter
   protected _body!: Body
@@ -92,5 +92,7 @@ export class Servie implements ServieOptions {
     this._body = body
     this.events.emit('body', body)
   }
+
+  abstract clone (): Servie
 
 }

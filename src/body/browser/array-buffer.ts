@@ -21,4 +21,11 @@ export class ArrayBufferBody extends Body<ArrayBuffer> {
     throw new TypeError('`ArrayBufferBody#readableStream()` not implemented')
   }
 
+  clone () {
+    return new ArrayBufferBody({
+      rawBody: this.rawBody.slice(0),
+      headers: this.headers.clone()
+    })
+  }
+
 }

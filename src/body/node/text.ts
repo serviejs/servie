@@ -22,4 +22,11 @@ export class TextBody extends Body<string> {
     })
   }
 
+  clone () {
+    return new TextBody({
+      rawBody: this.rawBody,
+      headers: this.headers.clone()
+    })
+  }
+
 }

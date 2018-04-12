@@ -90,11 +90,24 @@ export class Request extends Servie implements RequestOptions {
       method: this.method,
       body: this.body.toJSON(),
       headers: this.headers.toJSON(),
-      trailers: this.trailers.toJSON(),
+      connection: this.connection,
       started: this.started,
       finished: this.finished,
       bytesTransferred: this.bytesTransferred
     }
+  }
+
+  clone () {
+    if (this.started) throw new TypeError('Request already started')
+
+    return new Request({
+      url: this.url,
+      method: this.method,
+      connection: this.connection,
+      events: this.events,
+      body: this.body.clone(),
+      headers: this.headers.clone()
+    })
   }
 
 }

@@ -22,4 +22,11 @@ export class BufferBody extends Body<Buffer> {
     })
   }
 
+  clone () {
+    return new BufferBody({
+      rawBody: this.rawBody.slice(0),
+      headers: this.headers.clone()
+    })
+  }
+
 }

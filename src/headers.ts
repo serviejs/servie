@@ -145,8 +145,8 @@ export class Headers {
     return this
   }
 
-  clone (): this {
-    return new (this as any).constructor(this.rawHeaders)
+  clone (): Headers {
+    return new Headers(this.rawHeaders)
   }
 
   toJSON (): object {

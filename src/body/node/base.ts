@@ -3,10 +3,6 @@ import { BodyCommon } from '../common'
 
 export abstract class Body <T = any> extends BodyCommon<T> {
 
-  abstract buffer (): Promise<Buffer>
-
-  abstract stream (): Readable
-
   json () {
     return this.text().then(x => JSON.parse(x))
   }
@@ -16,5 +12,11 @@ export abstract class Body <T = any> extends BodyCommon<T> {
       return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
     })
   }
+
+  abstract buffer (): Promise<Buffer>
+
+  abstract stream (): Readable
+
+  abstract clone (): Body<T>
 
 }

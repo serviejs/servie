@@ -39,4 +39,17 @@ export class Response extends Servie implements ResponseOptions {
       bytesTransferred: this.bytesTransferred
     }
   }
+
+  clone () {
+    if (this.started) throw new TypeError('Response already started')
+
+    return new Response({
+      statusCode: this.statusCode,
+      statusMessage: this.statusMessage,
+      events: this.events,
+      body: this.body.clone(),
+      headers: this.headers.clone()
+    })
+  }
+
 }

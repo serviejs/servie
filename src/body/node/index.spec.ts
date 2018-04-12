@@ -26,7 +26,7 @@ describe('body', () => {
     await expect(body.text()).resolves.toEqual('test')
 
     expect(body.bodyUsed).toEqual(true)
-    expect(body.rawBody).toEqual(undefined)
+    expect(() => body.rawBody).toThrow(TypeError)
     await expect(body.text()).rejects.toEqual(new TypeError('Body already used'))
   })
 
@@ -34,12 +34,13 @@ describe('body', () => {
     const body = createBody('test')
     const bodyClone = createBody(body)
 
-    expect(body.bodyUsed).toEqual(true)
-    expect(body.rawBody).toEqual(undefined)
+    expect(body.bodyUsed).toEqual(false)
+    expect(body.rawBody).toEqual('test')
     expect(body.headers.get('content-length')).toEqual('4')
 
     expect(bodyClone.bodyUsed).toEqual(false)
     expect(bodyClone.rawBody).toEqual('test')
+    expect(bodyClone.headers.get('content-length')).toEqual('4')
   })
 
   it('should create a body from buffer', async () => {

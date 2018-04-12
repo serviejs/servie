@@ -61,6 +61,7 @@ import { Servie } from 'servie'
 #### Methods
 
 * `getHeaders()` Returns the combined `Request` and `Body` headers (`Headers`)
+* `clone()` Abstract method implemented by `Request` and `Response` to clone the instance (throws `TypeError` when `started == true`)
 
 #### Events
 
@@ -169,7 +170,7 @@ Create `Headers` instance from raw value (e.g. `HeadersObject | string[] | null`
 * `keys()` Iterable of the available header names
 * `values()` Iterable of header values
 * `entries()` Iterable of headers as `[key, value]`
-* `clone()` Clones the current headers instance
+* `clone()` Clones the `Headers` instance
 
 #### Static Methods
 
@@ -198,9 +199,9 @@ Create a `Body` instance from raw data (e.g. `Readable | ReadableStream | Buffer
 #### Properties
 
 * `buffered` Indicates the raw body is entirely in memory (`boolean`)
-* `bodyUsed` Indicates the body has already been read (`boolean`)
-* `hasBody` Indicates the body has been set (not `undefined`) (`boolean`)
-* `headers` Set of body-related HTTP headers (`Headers`)
+* `bodyUsed` Indicates the body has been read (`boolean`)
+* `hasBody` Indicates the body is not empty (`boolean`)
+* `headers` Instance of body-related HTTP headers (`Headers`)
 
 #### Methods
 
@@ -210,6 +211,7 @@ Create a `Body` instance from raw data (e.g. `Readable | ReadableStream | Buffer
 * `buffer(): Promise<Buffer>` Returns the body as a `Buffer` instance (node.js)
 * `stream(): Readable` Returns a readable node.js stream (node.js)
 * `readableStream(): ReadableStream` Returns a readable WHATWG stream (browsers)
+* `clone(): this` Clones the `Body` instance (allowing body re-use, throws `TypeError` when `bodyUsed == true`)
 
 #### Static Methods
 

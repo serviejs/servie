@@ -3,31 +3,24 @@ import { Headers } from '../headers'
 export interface BodyCommonOptions <T> {
   rawBody: T
   headers?: Headers
+  bodyUsed?: boolean
 }
+
+export const kRawBody = Symbol('rawBody')
+export const kBodyUsed = Symbol('bodyUsed')
 
 export abstract class BodyCommon <T = any> implements BodyCommonOptions<T> {
 
-  readonly rawBody!: T
-  readonly bodyUsed!: boolean
-  readonly hasBody!: boolean
-  readonly headers!: Headers
+  [kRawBody]: T | undefined
+  [kBodyUsed]: boolean = false
 
+  readonly headers: Headers
+  readonly hasBody: boolean = true
   readonly buffered: boolean = true
 
   constructor (options: BodyCommonOptions<T>) {
-    Object.defineProperty(this, 'rawBody', {
-      configurable: true,
-      value: options.rawBody
-    })
-
-    Object.defineProperty(this, 'bodyUsed', {
-      configurable: true,
-      value: false
-    })
-
-    // These properties do not change after initialisation.
-    Object.defineProperty(this, 'hasBody', { value: options.rawBody !== undefined })
-    Object.defineProperty(this, 'headers', { value: options.headers || new Headers() })
+    this[kRawBody] = options.rawBody
+    this.headers = options.headers || new Headers()
   }
 
   static is (obj: any): obj is BodyCommon<any> {
@@ -36,23 +29,27 @@ export abstract class BodyCommon <T = any> implements BodyCommonOptions<T> {
       typeof obj.bodyUsed === 'boolean'
   }
 
-  useRawBody () {
-    if (this.bodyUsed) throw new TypeError('Body already used')
+  get rawBody (): T {
+    if (this[kBodyUsed]) throw new TypeError('Body already used')
 
+    return this[kRawBody]!
+  }
+
+  get bodyUsed () {
+    return this[kBodyUsed]
+  }
+
+  /**
+   * Consumes and returns `this.rawBody`.
+   */
+  useRawBody () {
     const rawBody = this.rawBody
-    Object.defineProperty(this, 'rawBody', { value: undefined })
-    Object.defineProperty(this, 'bodyUsed', { value: true })
+    this[kRawBody] = undefined
+    this[kBodyUsed] = true
     return rawBody
   }
 
-  clone (): this {
-    const rawBody = this.useRawBody()
-    const headers = this.headers
-
-    return new (this as any).constructor({ rawBody, headers })
-  }
-
-  toJSON (): object {
+  toJSON () {
     return {
       bodyUsed: this.bodyUsed,
       hasBody: this.hasBody,
@@ -61,10 +58,12 @@ export abstract class BodyCommon <T = any> implements BodyCommonOptions<T> {
     }
   }
 
+  abstract arrayBuffer (): Promise<ArrayBuffer>
+
   abstract text (): Promise<string>
 
   abstract json (): Promise<any>
 
-  abstract arrayBuffer (): Promise<ArrayBuffer>
+  abstract clone (): BodyCommon<T>
 
 }

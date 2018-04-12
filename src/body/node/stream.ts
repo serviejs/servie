@@ -1,5 +1,6 @@
-import { Readable } from 'stream'
+import { Readable, PassThrough } from 'stream'
 import { Body } from './base'
+import { kRawBody } from '../common'
 
 export class StreamBody extends Body<Readable> {
 
@@ -39,6 +40,20 @@ export class StreamBody extends Body<Readable> {
 
   stream () {
     return this.useRawBody()
+  }
+
+  clone () {
+    const rawBody = this.rawBody
+
+    const thisRawBody = rawBody.pipe(new PassThrough())
+    const cloneRawBody = rawBody.pipe(new PassThrough())
+
+    this[kRawBody] = thisRawBody
+
+    return new StreamBody({
+      rawBody: cloneRawBody,
+      headers: this.headers.clone()
+    })
   }
 
 }
