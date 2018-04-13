@@ -22,7 +22,7 @@ export abstract class Servie implements ServieOptions {
 
   protected [kBody]: Body
   protected [kHeaders]: Headers
-  protected [kTrailers]: Promise<Headers> | undefined
+  protected [kTrailers]: Promise<Headers>
   protected [kBytesTransferred] = 0
 
   constructor (options: ServieOptions = {}) {
@@ -65,7 +65,7 @@ export abstract class Servie implements ServieOptions {
   set bytesTransferred (bytes: number) {
     if (bytes > this[kBytesTransferred]) {
       this[kBytesTransferred] = bytes
-      this.events.emit('progress', this)
+      this.events.emit('progress', this, bytes)
     }
   }
 
@@ -79,7 +79,7 @@ export abstract class Servie implements ServieOptions {
   }
 
   get trailers () {
-    return this[kTrailers] || (this[kTrailers] = Promise.resolve(createHeaders()))
+    return this[kTrailers]
   }
 
   set trailers (trailers: Promise<Headers>) {
