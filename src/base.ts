@@ -6,33 +6,29 @@ import { createBody } from './body/universal'
 export interface ServieOptions {
   events?: EventEmitter
   headers?: Headers
-  trailers?: Promise<Headers>
   body?: Body
+  trailer?: Headers | Promise<Headers>
 }
 
-export const kEvents = Symbol('events')
-export const kBody = Symbol('body')
-export const kHeaders = Symbol('headers')
-export const kTrailers = Symbol('trailers')
 export const kBytesTransferred = Symbol('bytesTransferred')
 
 export abstract class Servie implements ServieOptions {
 
   events: EventEmitter
+  body: Body
+  headers: Headers
+  trailer: Promise<Headers>
 
-  protected [kBody]: Body
-  protected [kHeaders]: Headers
-  protected [kTrailers]: Promise<Headers>
   protected [kBytesTransferred] = 0
 
   constructor (options: ServieOptions = {}) {
     this.events = options.events || new EventEmitter()
-    this[kHeaders] = options.headers || createHeaders()
-    this[kTrailers] = options.trailers || Promise.resolve(createHeaders())
-    this[kBody] = options.body || createBody()
+    this.headers = options.headers || createHeaders()
+    this.body = options.body || createBody()
+    this.trailer = Promise.resolve(options.trailer || createHeaders())
   }
 
-  getHeaders () {
+  get allHeaders () {
     const headers = this.headers.clone()
     for (const [key, value] of this.body.headers.entries()) {
       if (!headers.has(key)) headers.append(key, value)
@@ -45,7 +41,7 @@ export abstract class Servie implements ServieOptions {
   set finished (value: boolean) {
     if (value) {
       Object.defineProperty(this, 'finished', { value })
-      this.events.emit('finished')
+      this.events.emit('finished', this)
     }
   }
 
@@ -54,46 +50,17 @@ export abstract class Servie implements ServieOptions {
   set started (value: boolean) {
     if (value) {
       Object.defineProperty(this, 'started', { value })
-      this.events.emit('started')
+      this.events.emit('started', this)
     }
   }
 
-  get bytesTransferred () {
-    return this[kBytesTransferred]
-  }
+  get bytesTransferred () { return this[kBytesTransferred] }
 
   set bytesTransferred (bytes: number) {
     if (bytes > this[kBytesTransferred]) {
       this[kBytesTransferred] = bytes
       this.events.emit('progress', this, bytes)
     }
-  }
-
-  get headers () {
-    return this[kHeaders]
-  }
-
-  set headers (headers: Headers) {
-    this[kHeaders] = headers
-    this.events.emit('headers', headers)
-  }
-
-  get trailers () {
-    return this[kTrailers]
-  }
-
-  set trailers (trailers: Promise<Headers>) {
-    this[kTrailers] = trailers
-    this.events.emit('trailers', trailers)
-  }
-
-  get body () {
-    return this[kBody]
-  }
-
-  set body (body: Body) {
-    this[kBody] = body
-    this.events.emit('body', body)
   }
 
   abstract clone (): Servie

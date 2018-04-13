@@ -57,18 +57,16 @@ import { Servie } from 'servie'
 * `started` Boolean indicating if a request/response has started
 * `finished` Boolean indicating if a request/response has finished
 * `bytesTransferred` The number of bytes sent in the HTTP request/response
+* `allHeaders` Combined `Request` and `Body` headers instance
 
 #### Methods
 
-* `getHeaders()` Returns the combined `Request` and `Body` headers (`Headers`)
 * `clone()` Abstract method implemented by `Request` and `Response` to clone the instance (throws `TypeError` when `started == true`)
 
 #### Events
 
-* `headers` Emitted when the `headers` property is changed
-* `trailers` Emitted when the `trailers` property is changed
-* `started` Emitted when `started` is changed to `true`
-* `finished` Emitted when `finished` is changed to `true`
+* `started` Emitted when `started == true`
+* `finished` Emitted when `finished == true`
 * `progress` Emitted when `bytesTransferred` increments
 
 ### `Request`

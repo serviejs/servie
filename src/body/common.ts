@@ -29,14 +29,14 @@ export abstract class BodyCommon <T = any> implements BodyCommonOptions<T> {
       typeof obj.bodyUsed === 'boolean'
   }
 
+  get bodyUsed () {
+    return this[kBodyUsed]
+  }
+
   get rawBody (): T {
     if (this[kBodyUsed]) throw new TypeError('Body already used')
 
-    return this[kRawBody]!
-  }
-
-  get bodyUsed () {
-    return this[kBodyUsed]
+    return this[kRawBody] as T
   }
 
   /**
