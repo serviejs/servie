@@ -41,7 +41,7 @@ export abstract class Servie implements ServieOptions {
   set finished (value: boolean) {
     if (value) {
       Object.defineProperty(this, 'finished', { value })
-      this.events.emit('finished', this)
+      this.events.emit('finished')
     }
   }
 
@@ -50,7 +50,7 @@ export abstract class Servie implements ServieOptions {
   set started (value: boolean) {
     if (value) {
       Object.defineProperty(this, 'started', { value })
-      this.events.emit('started', this)
+      this.events.emit('started')
     }
   }
 
@@ -59,7 +59,7 @@ export abstract class Servie implements ServieOptions {
   set bytesTransferred (bytes: number) {
     if (bytes > this[kBytesTransferred]) {
       this[kBytesTransferred] = bytes
-      this.events.emit('progress', this, bytes)
+      this.events.emit('progress', bytes)
     }
   }
 

@@ -62,7 +62,7 @@ export class Request extends Servie implements RequestOptions {
   set connection (value: Connection | undefined) {
     if (value) {
       Object.defineProperty(this, 'connection', { value })
-      this.events.emit('connection', value)
+      this.events.emit('connection')
     }
   }
 
@@ -73,7 +73,7 @@ export class Request extends Servie implements RequestOptions {
   set aborted (value: boolean) {
     if (value) {
       Object.defineProperty(this, 'aborted', { value })
-      this.events.emit('aborted', value)
+      this.events.emit('aborted')
     }
   }
 
