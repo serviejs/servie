@@ -48,7 +48,7 @@ export class Response extends Servie implements ResponseOptions {
       events: this.events,
       body: this.body.clone(),
       headers: this.headers.clone(),
-      trailers: this.trailers.then(x => x.clone())
+      trailer: this.trailer.then(x => x.clone())
     })
   }
 

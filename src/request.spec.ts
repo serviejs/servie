@@ -8,7 +8,7 @@ describe('servie request', () => {
 
     expect(req.url).toBe('/test')
     expect(req.headers).toBeInstanceOf(Headers)
-    expect(req.trailers).toBeInstanceOf(Promise)
+    expect(req.trailer).toBeInstanceOf(Promise)
     expect(req.body).toBeInstanceOf(Body)
 
     expect(req.Url.pathname).toBe('/test')
@@ -29,7 +29,7 @@ describe('servie request', () => {
     const headers = createHeaders(['X-Powered-By', 'Servie'])
     const req = new Request({ url: '/', headers, body })
 
-    expect(Array.from(req.getHeaders().entries())).toEqual([
+    expect(Array.from(req.allHeaders.entries())).toEqual([
       ['X-Powered-By', 'Servie'],
       ['Content-Type', 'application/json'],
       ['Content-Length', '13']
