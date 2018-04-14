@@ -45,14 +45,14 @@ import { Servie } from 'servie'
 
 * `events?` An instance of `EventEmitter`
 * `headers?` An instance of `Headers`
-* `trailers?` An instance of `Promise<Headers>`
+* `trailer?` An instance of `Promise<Headers>`
 * `body?` An instance of `Body`
 
 #### Properties
 
 * `events` An event emitter for listening to the request and response lifecycle
 * `headers` The headers as a `Headers` instance
-* `trailers` A promise that resolves to a `Headers` instance
+* `trailer` A promise that resolves to a `Headers` instance
 * `body` The request or response payload
 * `started` Boolean indicating if a request/response has started
 * `finished` Boolean indicating if a request/response has finished
@@ -65,9 +65,12 @@ import { Servie } from 'servie'
 
 #### Events
 
-* `started` Emitted when `started == true`
-* `finished` Emitted when `finished == true`
-* `progress` Emitted when `bytesTransferred` increments
+* `started` when `started == true`
+* `finished` when `finished == true`
+* `progress` when `bytesTransferred` increments
+* `connection` when `Request` connection is available
+* `abort` when `Request` is aborting
+* `aborted` when `Request` has aborted successfully
 
 ### `Request`
 
@@ -218,13 +221,13 @@ Create a `Body` instance from raw data (e.g. `Readable | ReadableStream | Buffer
 
 ## Implementers
 
-If you're building the transports for Servie, there are some life cycle events you need to be aware of and emit yourself:
+If you're building the transports for Servie, there are some life cycle events you need to be aware of:
 
-1. Listen to the `error` event on `Request` for out-of-band errors and respond accordingly (e.g. application logging)
-2. Listen to the `abort` event on `Request` and destroy the HTTP request/response
-3. Resolve and send `trailers` with HTTP request
-4. Emit `response` event on `Request` when response becomes available
-5. Set `started === true` and `finished === true` on `Request` and `Response` (as appropriate)
+1. Listen to the `error` event on `Request` and `Response` for errors
+2. Listen to the `abort` event on `Request` and destroy the HTTP request
+3. Resolve `trailer` promise and append to HTTP request
+4. Emit the `response` event (with `Response` arg) on `Request` when server responds
+5. Set `started = true` and `finished = true` on `Request` and `Response` (as appropriate)
 6. Set `bytesTransferred` on `Request` and `Response` when monitoring HTTP transfer progress
 
 ## JavaScript
