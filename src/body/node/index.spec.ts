@@ -51,4 +51,10 @@ describe('body', () => {
     expect(body.bodyUsed).toBe(false)
     expect(await body.text()).toEqual('test')
   })
+
+  it('should create a body without headers', () => {
+    const body = createBody('test', { headers: {} })
+
+    expect(body.headers.rawHeaders).toEqual([])
+  })
 })
