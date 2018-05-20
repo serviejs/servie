@@ -1,4 +1,8 @@
-import { Headers } from '../headers'
+import { Headers, CreateHeaders } from '../headers'
+
+export interface CreateBodyOptions {
+  headers?: CreateHeaders
+}
 
 export interface BodyCommonOptions <T> {
   rawBody: T

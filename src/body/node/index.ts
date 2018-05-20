@@ -6,6 +6,7 @@ import { TextBody } from './text'
 import { BufferBody } from './buffer'
 import { StreamBody } from './stream'
 import { createHeaders, HeadersValuesObject } from '../../headers'
+import { CreateBodyOptions } from '../common'
 
 export { Body, EmptyBody, TextBody, BufferBody, StreamBody }
 
@@ -15,12 +16,12 @@ function isStream (stream: any): stream is Readable & { getHeaders? (): HeadersV
   return stream !== null && typeof stream === 'object' && typeof stream.pipe === 'function'
 }
 
-export function createBody (value?: CreateBody): Body<any> {
+export function createBody (value?: CreateBody, options: CreateBodyOptions = {}): Body<any> {
   if (value === undefined) return new EmptyBody({ rawBody: undefined })
   if (Body.is(value)) return value.clone()
 
   if (Buffer.isBuffer(value)) {
-    const headers = createHeaders({
+    const headers = createHeaders(options.headers || {
       'Content-Type': 'application/octet-stream',
       'Content-Length': String(value.length)
     })
@@ -29,7 +30,7 @@ export function createBody (value?: CreateBody): Body<any> {
   }
 
   if (value instanceof ArrayBuffer) {
-    const headers = createHeaders({
+    const headers = createHeaders(options.headers || {
       'Content-Type': 'application/octet-stream',
       'Content-Length': String(value.byteLength)
     })
@@ -38,7 +39,9 @@ export function createBody (value?: CreateBody): Body<any> {
   }
 
   if (isStream(value)) {
-    const headers = createHeaders(['Content-Type', 'application/octet-stream'])
+    const headers = createHeaders(options.headers || {
+      'Content-Type': 'application/octet-stream'
+    })
 
     if (typeof value.getHeaders === 'function') headers.extend(value.getHeaders())
 
@@ -46,7 +49,7 @@ export function createBody (value?: CreateBody): Body<any> {
   }
 
   if (typeof value === 'string') {
-    const headers = createHeaders({
+    const headers = createHeaders(options.headers || {
       'Content-Type': 'text/plain',
       'Content-Length': byteLength(value)
     })
@@ -56,7 +59,7 @@ export function createBody (value?: CreateBody): Body<any> {
 
   const str = JSON.stringify(value)
 
-  const headers = createHeaders({
+  const headers = createHeaders(options.headers || {
     'Content-Type': 'application/json',
     'Content-Length': byteLength(str)
   })
