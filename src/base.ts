@@ -63,6 +63,20 @@ export abstract class Servie implements ServieOptions {
     }
   }
 
+  get aborted () { return false }
+
+  abort () {
+    const shouldAbort = !this.aborted && !this.finished
+
+    if (shouldAbort) {
+      this.events.emit('abort')
+      Object.defineProperty(this, 'aborted', { value: true })
+      this.events.emit('aborted')
+    }
+
+    return shouldAbort
+  }
+
   abstract clone (): Servie
 
 }

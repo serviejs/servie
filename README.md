@@ -61,7 +61,8 @@ import { Servie } from 'servie'
 
 #### Methods
 
-* `clone()` Abstract method implemented by `Request` and `Response` to clone the instance (throws `TypeError` when `started == true`)
+* `abort(): boolean` Aborts the HTTP connection
+* `clone(): Servie` Abstract method implemented by `Request` and `Response` to clone new instance (throws `TypeError` when `started == true`)
 
 #### Events
 
@@ -69,8 +70,8 @@ import { Servie } from 'servie'
 * `finished` when `finished == true`
 * `progress` when `bytesTransferred` increments
 * `connection` when `Request` connection is available
-* `abort` when `Request` is aborting
-* `aborted` when `Request` has aborted successfully
+* `abort` when `Request` or `Response` is aborting
+* `aborted` when `Request` or `Response` sets `aborted == true`
 
 ### `Request`
 
@@ -101,10 +102,6 @@ const request = new Request({
 * `method` Requested method (`string`)
 * `Url` Request url parsed into individual parts (`object`)
 * `connection` HTTP connection information when available (`object`)
-
-#### Methods
-
-* `abort(): boolean` Aborts the HTTP connection
 
 #### Events
 
@@ -224,9 +221,9 @@ Create a `Body` instance from raw data (e.g. `Readable | ReadableStream | Buffer
 If you're building the transports for Servie, there are some life cycle events you need to be aware of:
 
 1. Listen to the `error` event on `Request` and `Response` for errors
-2. Listen to the `abort` event on `Request` and destroy the HTTP request
+2. Listen to the `abort` event on `Request` and `Response` to destroy the connection
 3. Resolve `trailer` promise and append to HTTP request
-4. Emit the `response` event (with `Response` arg) on `Request` when server responds
+4. Emit a `response` event (with `Response` provided) on `Request` when server responds
 5. Set `started = true` and `finished = true` on `Request` and `Response` (as appropriate)
 6. Set `bytesTransferred` on `Request` and `Response` when monitoring HTTP transfer progress
 

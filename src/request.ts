@@ -66,28 +66,6 @@ export class Request extends Servie implements RequestOptions {
     }
   }
 
-  get aborted () {
-    return false
-  }
-
-  set aborted (value: boolean) {
-    if (value) {
-      Object.defineProperty(this, 'aborted', { value })
-      this.events.emit('aborted')
-    }
-  }
-
-  abort () {
-    const shouldAbort = !this.aborted && !this.finished
-
-    if (shouldAbort) {
-      this.aborted = true
-      this.events.emit('abort')
-    }
-
-    return shouldAbort
-  }
-
   toJSON () {
     return {
       url: this.url,
