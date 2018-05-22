@@ -29,7 +29,14 @@ export interface HeadersObject {
 
 export class Headers {
 
+  /**
+   * @internal
+   */
   protected [kHeaderList]: string[]
+
+  /**
+   * @internal
+   */
   protected [kHeaderNames]: Set<string>
 
   constructor (rawHeaders: string[] = []) {

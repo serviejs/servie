@@ -22,6 +22,9 @@ export abstract class Servie implements ServieOptions {
   headers: Headers
   trailer: Promise<Headers>
 
+  /**
+   * @internal
+   */
   protected [kBytesTransferred] = 0
 
   constructor (options: ServieOptions = {}) {

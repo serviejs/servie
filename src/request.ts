@@ -43,8 +43,19 @@ export class Request extends Servie implements RequestOptions {
 
   method: string
 
+  /**
+   * @internal
+   */
   protected [kUrl]: string
+
+  /**
+   * @internal
+   */
   protected [kUrlObject]?: Url
+
+  /**
+   * @internal
+   */
   protected [kAborted]?: boolean
 
   constructor (options: RequestOptions) {

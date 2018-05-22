@@ -26,7 +26,14 @@ export abstract class BodyCommon <T = any> implements BodyCommonOptions<T> {
   readonly hasBody: boolean = true
   readonly buffered: boolean = true
 
+  /**
+   * @internal
+   */
   protected [kRawBody]: T | undefined
+
+  /**
+   * @internal
+   */
   protected [kBodyUsed]: boolean = false
 
   constructor (options: BodyCommonOptions<T>) {
