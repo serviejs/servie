@@ -105,6 +105,9 @@ export class Request extends Servie implements RequestOptions {
     this[kAborted] = true
     this.events.emit('abort')
 
+    // Set `aborted` automatically when the request has not started.
+    if (!this.started) this.aborted = true
+
     return true
   }
 
