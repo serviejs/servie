@@ -10,7 +10,14 @@ export interface HeadersValuesObject {
   [key: string]: HeaderValues
 }
 
+/**
+ * @internal
+ */
 export const kHeaderList = Symbol('headerList')
+
+/**
+ * @internal
+ */
 export const kHeaderNames = Symbol('headerNames')
 
 /**

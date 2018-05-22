@@ -10,6 +10,9 @@ export interface ServieOptions {
   trailer?: Headers | Promise<Headers>
 }
 
+/**
+ * @internal
+ */
 export const kBytesTransferred = Symbol('bytesTransferred')
 
 export abstract class Servie implements ServieOptions {
@@ -61,20 +64,6 @@ export abstract class Servie implements ServieOptions {
       this[kBytesTransferred] = bytes
       this.events.emit('progress', bytes)
     }
-  }
-
-  get aborted () { return false }
-
-  abort () {
-    const shouldAbort = !this.aborted && !this.finished
-
-    if (shouldAbort) {
-      this.events.emit('abort')
-      Object.defineProperty(this, 'aborted', { value: true })
-      this.events.emit('aborted')
-    }
-
-    return shouldAbort
   }
 
   abstract clone (): Servie

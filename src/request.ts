@@ -21,8 +21,20 @@ export interface RequestOptions extends ServieOptions {
   connection?: Connection
 }
 
+/**
+ * @internal
+ */
 export const kUrl = Symbol('url')
+
+/**
+ * @internal
+ */
 export const kUrlObject = Symbol('urlObject')
+
+/**
+ * @internal
+ */
+export const kAborted = Symbol('aborted')
 
 /**
  * The HTTP request class.
@@ -33,6 +45,7 @@ export class Request extends Servie implements RequestOptions {
 
   protected [kUrl]: string
   protected [kUrlObject]?: Url
+  protected [kAborted]?: boolean
 
   constructor (options: RequestOptions) {
     super(options)
@@ -66,6 +79,35 @@ export class Request extends Servie implements RequestOptions {
     }
   }
 
+  get closed () { return false }
+
+  set closed (value: boolean) {
+    if (value) {
+      Object.defineProperty(this, 'closed', { value })
+      this.events.emit('closed')
+    }
+  }
+
+  get aborted () { return false }
+
+  set aborted (value: boolean) {
+    if (value) {
+      this[kAborted] = true
+      Object.defineProperty(this, 'aborted', { value })
+      this.events.emit('aborted')
+    }
+  }
+
+  abort () {
+    if (this.closed || this[kAborted]) return false
+
+    // Block repeat "abort" events.
+    this[kAborted] = true
+    this.events.emit('abort')
+
+    return true
+  }
+
   toJSON () {
     return {
       url: this.url,
@@ -81,6 +123,7 @@ export class Request extends Servie implements RequestOptions {
 
   clone () {
     if (this.started) throw new TypeError('Request already started')
+    if (this[kAborted]) throw new TypeError('Request has been aborted')
 
     return new Request({
       url: this.url,

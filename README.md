@@ -221,11 +221,11 @@ Create a `Body` instance from raw data (e.g. `Readable | ReadableStream | Buffer
 If you're building the transports for Servie, there are some life cycle events you need to be aware of:
 
 1. Listen to the `error` event on `Request` and `Response` for errors
-2. Listen to the `abort` event on `Request` and `Response` to destroy the connection
-3. Resolve `trailer` promise and append to HTTP request
-4. Emit a `response` event (with `Response` provided) on `Request` when server responds
-5. Set `started = true` and `finished = true` on `Request` and `Response` (as appropriate)
-6. Set `bytesTransferred` on `Request` and `Response` when monitoring HTTP transfer progress
+2. Listen to the `abort` event on `Request` to destroy the connection and, when destroyed, set `req.aborted = true`
+3. Resolve `trailer` promise and append to HTTP request or response
+4. Set `started = true` and `finished = true` on `Request` and `Response` (as appropriate)
+5. Set `bytesTransferred` on `Request` and `Response` with transfer progress
+6. Set `req.closed = true` when the connection has finished
 
 ## JavaScript
 

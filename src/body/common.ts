@@ -10,7 +10,14 @@ export interface BodyCommonOptions <T> {
   bodyUsed?: boolean
 }
 
+/**
+ * @internal
+ */
 export const kRawBody = Symbol('rawBody')
+
+/**
+ * @internal
+ */
 export const kBodyUsed = Symbol('bodyUsed')
 
 export abstract class BodyCommon <T = any> implements BodyCommonOptions<T> {
