@@ -1,7 +1,7 @@
 /**
  * Valid header values for appending to map.
  */
-export type HeaderValues = string | number | (string | number)[]
+export type HeaderValues = string | number | (string | number)[] | undefined
 
 /**
  * Loose object-style header definition.
@@ -90,7 +90,7 @@ export class Headers {
       for (const item of value) {
         this[kHeaderList].push(name, String(item))
       }
-    } else {
+    } else if (value !== undefined) {
       this[kHeaderList].push(name, String(value))
     }
 
