@@ -1,4 +1,4 @@
-import { parse, Url } from 'url'
+import { parse, UrlWithStringQuery } from 'url'
 import { Servie, ServieOptions } from './base'
 
 /**
@@ -51,7 +51,7 @@ export class Request extends Servie implements RequestOptions {
   /**
    * @internal
    */
-  protected [kUrlObject]?: Url
+  protected [kUrlObject]?: UrlWithStringQuery
 
   /**
    * @internal
