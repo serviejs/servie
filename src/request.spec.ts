@@ -8,6 +8,7 @@ describe('servie request', () => {
 
     expect(req.url).toBe('/test')
     expect(req.headers).toBeInstanceOf(Headers)
+    // tslint:disable-next-line
     expect(req.trailer).toBeInstanceOf(Promise)
     expect(req.body).toBeInstanceOf(Body)
 

@@ -16,7 +16,7 @@ export class StreamBody extends Body<ReadableStream> {
 
     while (true) {
       const result = await reader.read()
-      const chunk: Uint8Array = result.data
+      const chunk: Uint8Array = result.value
 
       if (result.done) break
 
