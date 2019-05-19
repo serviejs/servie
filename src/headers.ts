@@ -1,4 +1,4 @@
-export type HeadersObject = Record<string, string | string[]>;
+export type HeadersObject = Record<string, string | string[] | undefined>;
 export type HeaderTuple = [string, string | string[]];
 export type HeadersInit = Iterable<HeaderTuple> | HeadersObject | Headers;
 
@@ -6,31 +6,33 @@ export type HeadersInit = Iterable<HeaderTuple> | HeadersObject | Headers;
  * Map of HTTP headers.
  */
 export class Headers {
-  object: HeadersObject = Object.create(null);
+  object: Record<string, string | string[]> = Object.create(null);
 
   constructor(init?: HeadersInit) {
     if (init) this.extend(init);
   }
 
   set(headerName: string, value: string | string[]): void {
-    this.object[headerName.toLowerCase()] = value;
+    this.object[headerName.toLowerCase()] =
+      typeof value === "string" ? value : value.map(String);
   }
 
   append(headerName: string, value: string | string[]): void {
     const key = headerName.toLowerCase();
     const prevValue = this.object[key];
-    if (prevValue === undefined) { // tslint:disable-line
-      this.object[key] = value;
+    // tslint:disable-next-line
+    if (prevValue === undefined) {
+      this.object[key] = typeof value === "string" ? value : value.map(String);
     } else if (Array.isArray(prevValue)) {
       if (Array.isArray(value)) {
-        prevValue.push(...value);
+        for (const v of value) prevValue.push(String(v));
       } else {
-        prevValue.push(value);
+        prevValue.push(String(value));
       }
     } else {
       this.object[key] = Array.isArray(value)
-        ? [prevValue, ...value]
-        : [prevValue, value];
+        ? [prevValue, ...value.map(String)]
+        : [prevValue, String(value)];
     }
   }
 
@@ -83,7 +85,8 @@ export class Headers {
       for (const [key, value] of obj.entries()) this.append(key, value);
     } else {
       for (const key of Object.keys(obj)) {
-        this.append(key, (obj as HeadersObject)[key]);
+        const value = (obj as HeadersObject)[key];
+        if (value !== undefined) this.append(key, value);
       }
     }
   }
