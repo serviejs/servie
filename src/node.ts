@@ -20,7 +20,7 @@ export * from "./signal";
 /**
  * Check if a value is a node.js stream object.
  */
-export function isStream(
+function isStream(
   stream: any
 ): stream is Readable & { getHeaders?(): HeadersObject } {
   return (
@@ -28,6 +28,18 @@ export function isStream(
     typeof stream === "object" &&
     typeof stream.pipe === "function"
   );
+}
+
+/**
+ * Convert a stream to buffer.
+ */
+function streamToBuffer(stream: Readable): Promise<Buffer> {
+  return new Promise<Buffer>((resolve, reject) => {
+    const buf: Buffer[] = [];
+    stream.on("error", reject);
+    stream.on("data", (chunk: Buffer) => buf.push(chunk));
+    stream.on("end", () => resolve(Buffer.concat(buf)));
+  })
 }
 
 /**
@@ -107,7 +119,7 @@ export class Body implements CommonBody<RawBody> {
     if (Buffer.isBuffer(rawBody)) {
       return Promise.resolve(rawBody.toString("utf8"));
     }
-    return this.buffer().then(x => x.toString("utf8"));
+    return streamToBuffer(rawBody).then(x => x.toString("utf8"));
   }
 
   buffer(): Promise<Buffer> {
@@ -117,14 +129,7 @@ export class Body implements CommonBody<RawBody> {
     if (typeof rawBody === "string") {
       return Promise.resolve(Buffer.from(rawBody));
     }
-
-    return new Promise<Buffer>((resolve, reject) => {
-      const buf: Buffer[] = [];
-
-      rawBody.on("error", reject);
-      rawBody.on("data", (chunk: Buffer) => buf.push(chunk));
-      rawBody.on("end", () => resolve(Buffer.concat(buf)));
-    });
+    return streamToBuffer(rawBody);
   }
 
   arrayBuffer(): Promise<ArrayBuffer> {
