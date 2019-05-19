@@ -77,12 +77,12 @@ function once<T, K extends keyof T>(
  */
 export interface SignalEvents {
   abort: [];
-  requestStarted: [];
-  requestEnded: [];
-  responseStarted: [];
-  responseEnded: [];
   requestBytes: [number];
+  requestEnded: [];
+  requestStarted: [];
   responseBytes: [number];
+  responseEnded: [];
+  responseStarted: [];
 }
 
 /**
