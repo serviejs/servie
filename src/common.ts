@@ -19,7 +19,7 @@ export type EmptyBody = null | undefined;
 /**
  * Body constructor shape.
  */
-export type BodyConstructor<T, U extends T> = {
+export type CommonBodyConstructor<T, U extends T> = {
   new (body: T | EmptyBody, headers: Headers): CommonBody<U>;
 };
 
@@ -40,7 +40,7 @@ export interface CommonBody<T> {
 /**
  * Request configuration.
  */
-export interface RequestOptions<T> {
+export interface CommonRequestOptions<T> {
   method?: string;
   body?: T;
   signal?: Signal;
@@ -61,7 +61,7 @@ export interface CommonRequest<T> extends CommonBody<T> {
 /**
  * Response configuration.
  */
-export interface ResponseOptions {
+export interface CommonResponseOptions {
   status?: number;
   statusText?: string;
   headers?: HeadersInit;

@@ -6,13 +6,15 @@ import {
   CommonBody,
   useRawBody,
   EmptyBody,
-  RequestOptions,
-  ResponseOptions,
+  CommonRequestOptions,
+  CommonResponseOptions,
   CommonRequest
 } from "./common";
 
 export type RawBody = Readable | Buffer | string;
 export type CreateBody = RawBody | ArrayBuffer | EmptyBody;
+export type RequestOptions = CommonRequestOptions<CreateBody>;
+export type ResponseOptions = CommonResponseOptions;
 
 export * from "./headers";
 export * from "./signal";
@@ -182,7 +184,7 @@ export class Request extends Body implements CommonRequest<RawBody> {
   signal: Signal;
   trailer: Promise<Headers>;
 
-  constructor(input: string | Request, init: RequestOptions<CreateBody> = {}) {
+  constructor(input: string | Request, init: RequestOptions = {}) {
     // Clone request or use passed options object.
     const opts = typeof input === "string" ? init : input.clone();
     const headers = new Headers(init.headers || opts.headers);
