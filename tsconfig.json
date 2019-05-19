@@ -6,10 +6,9 @@
     "outDir": "dist",
     "module": "commonjs",
     "strict": true,
-    "stripInternal": true,
     "declaration": true,
-    "removeComments": false,
     "sourceMap": true,
     "inlineSources": true
-  }
+  },
+  "include": ["./src/**/*"]
 }

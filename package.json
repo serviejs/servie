@@ -1,7 +1,7 @@
 {
   "name": "servie",
   "version": "3.2.4",
-  "description": "Standard HTTP interfaces",
+  "description": "Standard HTTP interfaces for HTTP clients and servers in node.js and browsers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -10,17 +10,24 @@
     "logo.svg"
   ],
   "browser": {
-    "./dist/body/node/index.js": "./dist/body/browser/index.js"
+    "./dist/node.js": "./dist/browser.js"
   },
   "scripts": {
+    "prettier": "prettier --write",
     "lint": "tslint \"src/**/*.ts\" --project tsconfig.json",
-    "build": "rm -rf dist/ && tsc",
+    "format": "npm run prettier -- README.md \"src/**/*.{js,ts}\"",
+    "build": "rimraf dist && tsc",
     "specs": "jest --coverage",
-    "test": "npm run lint && npm run build && npm run specs && npm run bundle && npm run bundle:size",
-    "bundle": "browserify . -o browser.js",
-    "bundle:size": "du -h browser.js",
-    "prepublish": "npm run build"
+    "test": "npm run -s lint && npm run -s build && npm run -s specs && npm run -s size",
+    "prepare": "npm run build",
+    "size": "size-limit"
   },
+  "size-limit": [
+    {
+      "path": "./dist/index.js",
+      "limit": "1.7 kB"
+    }
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/serviejs/servie.git"
@@ -30,9 +37,10 @@
     "response",
     "http",
     "interface",
+    "server",
+    "browser",
     "req",
-    "res",
-    "server"
+    "res"
   ],
   "author": {
     "name": "Blake Embrey",
@@ -61,14 +69,33 @@
       "node"
     ]
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,json,css,md}": [
+      "npm run prettier",
+      "git add"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/jest": "^24.0.11",
-    "@types/node": "^11.13.0",
+    "@types/node": "^12.0.0",
     "browserify": "^16.2.3",
+    "husky": "^2.2.0",
     "jest": "^24.6.0",
+    "lint-staged": "^8.1.6",
+    "prettier": "^1.17.0",
     "rimraf": "^2.6.2",
+    "size-limit": "^1.3.1",
     "ts-jest": "^24.0.1",
-    "tslint": "^5.15.0",
+    "tslint": "^5.16.0",
+    "tslint-config-prettier": "^1.18.0",
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.4.1"
   },
