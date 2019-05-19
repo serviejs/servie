@@ -72,7 +72,7 @@ export class Headers {
     this.object = Object.create(null);
   }
 
-  asObject(): HeadersObject {
+  asObject(): Record<string, string | string[]> {
     return Object.assign(Object.create(null), this.object);
   }
 
