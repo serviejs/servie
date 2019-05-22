@@ -8,7 +8,8 @@ import {
   EmptyBody,
   CommonRequestOptions,
   CommonResponseOptions,
-  CommonRequest
+  CommonRequest,
+  CommonResponse
 } from "./common";
 
 export type RawBody = Readable | Buffer | string;
@@ -217,7 +218,7 @@ export class Request extends Body implements CommonRequest<RawBody> {
 /**
  * Node.js `Response` implementation.
  */
-export class Response extends Body {
+export class Response extends Body implements CommonResponse<RawBody> {
   status: number;
   statusText: string;
   trailer: Promise<Headers>;

@@ -26,7 +26,7 @@ export type CommonBodyConstructor<T, U extends T> = {
 /**
  * Abstract body shared between node.js and browsers.
  */
-export interface CommonBody<T> {
+export interface CommonBody<T = unknown> {
   $rawBody: T | null | undefined; // Use `undefined` as a mark of "used".
   headers: Headers;
   readonly bodyUsed: boolean;
@@ -51,10 +51,10 @@ export interface CommonRequestOptions<T> {
 /**
  * Request implementation standard.
  */
-export interface CommonRequest<T> extends CommonBody<T> {
+export interface CommonRequest<T = unknown> extends CommonBody<T> {
+  url: string
   method: string
   signal: Signal
-  headers: Headers
   trailer: Promise<Headers>
 }
 
@@ -71,9 +71,8 @@ export interface CommonResponseOptions {
 /**
  * Response implementation standard.
  */
-export interface CommonResponse<T> extends CommonBody<T> {
+export interface CommonResponse<T = unknown> extends CommonBody<T> {
   status: number
   statusText: string
-  headers: Headers
   trailer: Promise<Headers>
 }
