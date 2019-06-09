@@ -43,7 +43,7 @@ describe("node", () => {
 
         expect(await req.text()).toEqual("");
         expect(await req.text()).toEqual(""); // Second read.
-      })
+      });
 
       describe("init headers", () => {
         it("should initialize from string body", () => {

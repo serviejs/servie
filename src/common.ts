@@ -52,10 +52,11 @@ export interface CommonRequestOptions<T> {
  * Request implementation standard.
  */
 export interface CommonRequest<T = unknown> extends CommonBody<T> {
-  url: string
-  method: string
-  signal: Signal
-  trailer: Promise<Headers>
+  url: string;
+  method: string;
+  signal: Signal;
+  trailer: Promise<Headers>;
+  clone(): CommonRequest<T>;
 }
 
 /**
@@ -72,7 +73,8 @@ export interface CommonResponseOptions {
  * Response implementation standard.
  */
 export interface CommonResponse<T = unknown> extends CommonBody<T> {
-  status: number
-  statusText: string
-  trailer: Promise<Headers>
+  status: number;
+  statusText: string;
+  trailer: Promise<Headers>;
+  clone(): CommonResponse<T>;
 }

@@ -42,7 +42,7 @@ function streamToBuffer(stream: Readable): Promise<Buffer> {
     stream.on("error", reject);
     stream.on("data", (chunk: Buffer) => buf.push(chunk));
     stream.on("end", () => resolve(Buffer.concat(buf)));
-  })
+  });
 }
 
 /**
