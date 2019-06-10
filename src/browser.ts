@@ -201,7 +201,7 @@ export class Request extends Body implements CommonRequest<RawBody> {
 
     this.url = typeof input === "string" ? input : input.url;
     this.method = init.method || opts.method || "GET";
-    this.signal = new Signal(init.signal || opts.signal);
+    this.signal = init.signal || opts.signal || new Signal();
     this.headers = headers;
     this.trailer = Promise.resolve<HeadersInit | undefined>(
       init.trailer || opts.trailer
