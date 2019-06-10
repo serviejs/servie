@@ -49,15 +49,6 @@ class Events<T> {
 }
 
 /**
- * Forward all events from one event emitter to the other.
- */
-function forward<T>(from: Events<T>, to: Events<T>) {
-  const fn = (type: keyof T, ...args: any) => to.emit(type, ...args);
-  from.each(fn);
-  return fn;
-}
-
-/**
  * Helper to listen to an event once only.
  */
 function once<T, K extends keyof T>(
@@ -90,14 +81,8 @@ export interface SignalEvents {
 export class Signal extends Events<SignalEvents> {
   aborted = false;
 
-  constructor(signal?: Signal) {
+  constructor() {
     super();
-
-    // Inherit events emitted from the signal.
-    if (signal) {
-      this.aborted = signal.aborted;
-      forward(signal, this);
-    }
 
     // Listen for the abort signal.
     once(this, "abort", () => (this.aborted = true));
