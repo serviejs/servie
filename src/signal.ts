@@ -43,7 +43,7 @@ class Events<T> {
     type: K,
     ...args: (T & Record<PropertyKey, any[]>)[K]
   ) {
-    if (type in this.any) this.any[type].slice().forEach(fn => fn(...args));
+    (this.any[type] || []).slice().forEach(fn => fn(...args));
     this.all.slice().forEach(fn => fn(type, ...args));
   }
 }
@@ -65,8 +65,8 @@ function once<T, K extends keyof T>(
   type: K,
   callback: EventListener<T, K>
 ) {
-  return e.on(type, function self(...args) {
-    e.off(type, self);
+  return e.on(type, function once(...args) {
+    e.off(type, once);
     callback(...args);
   });
 }
@@ -94,7 +94,10 @@ export class Signal extends Events<SignalEvents> {
     super();
 
     // Inherit events emitted from the signal.
-    if (signal) forward(signal, this);
+    if (signal) {
+      this.aborted = signal.aborted;
+      forward(signal, this);
+    }
 
     // Listen for the abort signal.
     once(this, "abort", () => (this.aborted = true));
