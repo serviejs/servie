@@ -196,7 +196,7 @@ export class Request extends Body implements CommonRequest<RawBody> {
 
     this.url = typeof input === "string" ? input : input.url;
     this.method = init.method || opts.method || "GET";
-    this.signal = init.signal || opts.signal || new Signal();
+    this.signal = new Signal(init.signal || opts.signal);
     this.headers = headers;
     this.trailer = Promise.resolve<HeadersInit | undefined>(
       init.trailer || opts.trailer
@@ -207,6 +207,7 @@ export class Request extends Body implements CommonRequest<RawBody> {
     const { rawBody, headers } = super.clone();
 
     return new Request(this.url, {
+      method: this.method,
       body: rawBody,
       signal: this.signal,
       headers,

@@ -43,9 +43,8 @@ class Events<T> {
     type: K,
     ...args: (T & Record<PropertyKey, any[]>)[K]
   ) {
-    if (!(type in this.any)) return;
-    this.any[type].forEach(fn => fn(...args));
-    this.all.forEach(fn => fn(type, ...args));
+    if (type in this.any) this.any[type].slice().forEach(fn => fn(...args));
+    this.all.slice().forEach(fn => fn(type, ...args));
   }
 }
 

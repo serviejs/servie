@@ -59,7 +59,17 @@ describe("node", () => {
       const reqClone = new Request(req);
 
       expect(req).not.toBe(reqClone);
-      expect(req).toEqual(reqClone);
+      expect(req.url).toEqual(reqClone.url);
+      expect(req.method).toEqual(reqClone.method);
+      expect(req.headers).toEqual(reqClone.headers);
+      expect(req.rawBody).toEqual(reqClone.rawBody);
+
+      const fn = jest.fn();
+
+      reqClone.signal.on('abort', fn);
+      req.signal.emit('abort');
+
+      expect(fn).toHaveBeenCalled();
     });
   });
 
@@ -86,7 +96,11 @@ describe("node", () => {
       const resClone = new Response(null, res);
 
       expect(res).not.toBe(resClone);
-      expect(res).toEqual(resClone);
+
+      expect(res.status).toEqual(resClone.status);
+      expect(res.statusText).toEqual(resClone.statusText);
+      expect(res.headers).toEqual(resClone.headers);
+      expect(res.rawBody).toEqual(resClone.rawBody);
     });
   });
 });
