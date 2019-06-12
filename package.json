@@ -100,6 +100,7 @@
     "typescript": "^3.4.1"
   },
   "dependencies": {
+    "@servie/events": "^1.0.0",
     "byte-length": "^1.0.2"
   }
 }
