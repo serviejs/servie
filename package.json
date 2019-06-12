@@ -1,6 +1,6 @@
 {
   "name": "servie",
-  "version": "4.0.10",
+  "version": "4.0.11",
   "description": "Standard HTTP interfaces for HTTP clients and servers in node.js and browsers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
