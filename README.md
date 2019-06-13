@@ -56,12 +56,12 @@ Supported body types, depending on environment:
 
 #### Properties and Methods
 
-- `bodyUsed` Boolean whether the body is consumed
-- `rawBody` Returns the raw body if not consumed
+- `bodyUsed` Boolean whether the body is already consumed
 - `text()` Returns the body as a `Promise<string>`
 - `json()` Returns the body with `JSON.parse` as `Promise<any>`
 - `arrayBuffer()` Returns the body as a `Promise<ArrayBuffer>`
 - `clone()` Clones an unconsumed body
+- `destroy()` Consumes and destroys the body
 
 ### `Request`
 

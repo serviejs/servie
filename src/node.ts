@@ -1,3 +1,4 @@
+import { once } from "@servie/events";
 import { byteLength } from "byte-length";
 import { Readable, PassThrough } from "stream";
 import { HeadersObject, Headers, HeadersInit } from "./headers";
@@ -9,7 +10,10 @@ import {
   CommonRequestOptions,
   CommonResponseOptions,
   CommonRequest,
-  CommonResponse
+  CommonResponse,
+  kBodyUsed,
+  kBodyDestroyed,
+  getRawBody
 } from "./common";
 
 export type RawBody = Readable | Buffer | string;
@@ -49,14 +53,14 @@ function streamToBuffer(stream: Readable): Promise<Buffer> {
  * Node.js `Body` implementation.
  */
 export class Body implements CommonBody<RawBody> {
-  $rawBody: RawBody | null | undefined;
+  $rawBody: RawBody | null | typeof kBodyUsed | typeof kBodyDestroyed;
   headers: Headers;
 
   constructor(body: CreateBody, headers: Headers) {
     const rawBody =
       body === undefined
         ? null
-        : body instanceof ArrayBuffer
+        : body instanceof ArrayBuffer && !Buffer.isBuffer(body)
         ? Buffer.from(body)
         : body;
 
@@ -102,13 +106,7 @@ export class Body implements CommonBody<RawBody> {
   }
 
   get bodyUsed() {
-    return this.$rawBody === undefined;
-  }
-
-  get rawBody() {
-    if (this.bodyUsed) throw new TypeError("Body already used");
-
-    return this.$rawBody as RawBody | null;
+    return this.$rawBody === kBodyUsed || this.$rawBody === kBodyDestroyed;
   }
 
   json(): Promise<any> {
@@ -164,7 +162,7 @@ export class Body implements CommonBody<RawBody> {
   }
 
   clone(): Body {
-    const rawBody = this.rawBody;
+    const rawBody = getRawBody(this);
 
     if (isStream(rawBody)) {
       const clonedRawBody = rawBody.pipe(new PassThrough());
@@ -174,6 +172,15 @@ export class Body implements CommonBody<RawBody> {
 
     return new Body(rawBody, this.headers.clone());
   }
+
+  destroy(): Promise<void> {
+    const rawBody = getRawBody(this);
+    this.$rawBody = kBodyDestroyed;
+
+    // Destroy readable streams.
+    if (isStream(rawBody)) rawBody.destroy();
+    return Promise.resolve();
+  }
 }
 
 /**
@@ -182,15 +189,15 @@ export class Body implements CommonBody<RawBody> {
 export class Request extends Body implements CommonRequest<RawBody> {
   url: string;
   method: string;
-  signal: Signal;
   trailer: Promise<Headers>;
+  readonly signal: Signal;
 
   constructor(input: string | Request, init: RequestOptions = {}) {
     // Clone request or use passed options object.
     const opts = typeof input === "string" ? init : input.clone();
     const headers = new Headers(init.headers || opts.headers);
     const rawBody =
-      init.body || (opts instanceof Request ? opts.rawBody : null);
+      init.body || (opts instanceof Request ? getRawBody(opts) : null);
 
     super(rawBody, headers);
 
@@ -201,16 +208,19 @@ export class Request extends Body implements CommonRequest<RawBody> {
     this.trailer = Promise.resolve<HeadersInit | undefined>(
       init.trailer || opts.trailer
     ).then(x => new Headers(x));
+
+    // Destroy body on abort.
+    once(this.signal, "abort", () => this.destroy());
   }
 
   clone(): Request {
-    const { rawBody, headers } = super.clone();
+    const cloned = super.clone();
 
     return new Request(this.url, {
+      body: getRawBody(cloned),
+      headers: cloned.headers,
       method: this.method,
-      body: rawBody,
       signal: this.signal,
-      headers,
       trailer: this.trailer.then(x => x.clone())
     });
   }
@@ -228,7 +238,7 @@ export class Response extends Body implements CommonResponse<RawBody> {
     return this.status >= 200 && this.status < 300;
   }
 
-  constructor(body: CreateBody, init: ResponseOptions = {}) {
+  constructor(body?: CreateBody, init: ResponseOptions = {}) {
     const headers = new Headers(init.headers);
 
     super(body, headers);
@@ -242,12 +252,12 @@ export class Response extends Body implements CommonResponse<RawBody> {
   }
 
   clone(): Response {
-    const { rawBody, headers } = super.clone();
+    const cloned = super.clone();
 
-    return new Response(rawBody, {
+    return new Response(getRawBody(cloned), {
       status: this.status,
       statusText: this.statusText,
-      headers,
+      headers: cloned.headers,
       trailer: this.trailer.then(x => x.clone())
     });
   }

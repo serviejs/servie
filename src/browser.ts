@@ -1,3 +1,4 @@
+import { once } from "@servie/events";
 import { byteLength } from "byte-length";
 import { Headers, HeadersInit } from "./headers";
 import { Signal } from "./signal";
@@ -8,7 +9,10 @@ import {
   CommonRequestOptions,
   CommonResponseOptions,
   CommonResponse,
-  CommonRequest
+  CommonRequest,
+  kBodyUsed,
+  kBodyDestroyed,
+  getRawBody
 } from "./common";
 
 export type RawBody = ReadableStream | ArrayBuffer | string;
@@ -61,7 +65,7 @@ function streamToArrayBuffer(stream: ReadableStream) {
  * Browser `Body` implementation.
  */
 export class Body implements CommonBody<RawBody> {
-  $rawBody: RawBody | null | undefined;
+  $rawBody: RawBody | null | typeof kBodyUsed | typeof kBodyDestroyed;
   headers: Headers;
 
   constructor(body: CreateBody, headers: Headers) {
@@ -103,13 +107,7 @@ export class Body implements CommonBody<RawBody> {
   }
 
   get bodyUsed() {
-    return this.$rawBody === undefined;
-  }
-
-  get rawBody() {
-    if (this.bodyUsed) throw new TypeError("Body already used");
-
-    return this.$rawBody as RawBody | null;
+    return this.$rawBody === kBodyUsed || this.$rawBody === kBodyDestroyed;
   }
 
   json(): Promise<any> {
@@ -169,7 +167,7 @@ export class Body implements CommonBody<RawBody> {
   }
 
   clone(): Body {
-    const rawBody = this.rawBody;
+    const rawBody = getRawBody(this);
 
     if (rawBody instanceof ReadableStream) {
       const [selfRawBody, clonedRawBody] = rawBody.tee();
@@ -179,6 +177,15 @@ export class Body implements CommonBody<RawBody> {
 
     return new Body(rawBody, this.headers.clone());
   }
+
+  destroy(): Promise<void> {
+    const rawBody = getRawBody(this);
+    this.$rawBody = kBodyDestroyed;
+
+    // Destroy readable streams.
+    if (rawBody instanceof ReadableStream) return rawBody.cancel();
+    return Promise.resolve();
+  }
 }
 
 /**
@@ -187,15 +194,15 @@ export class Body implements CommonBody<RawBody> {
 export class Request extends Body implements CommonRequest<RawBody> {
   url: string;
   method: string;
-  signal: Signal;
   trailer: Promise<Headers>;
+  readonly signal: Signal;
 
   constructor(input: string | Request, init: RequestOptions = {}) {
     // Clone request or use passed options object.
     const opts = typeof input === "string" ? init : input.clone();
     const headers = new Headers(init.headers || opts.headers);
     const rawBody =
-      init.body || (opts instanceof Request ? opts.rawBody : null);
+      init.body || (opts instanceof Request ? getRawBody(opts) : null);
 
     super(rawBody, headers);
 
@@ -206,16 +213,19 @@ export class Request extends Body implements CommonRequest<RawBody> {
     this.trailer = Promise.resolve<HeadersInit | undefined>(
       init.trailer || opts.trailer
     ).then(x => new Headers(x));
+
+    // Destroy body on abort.
+    once(this.signal, "abort", () => this.destroy());
   }
 
   clone(): Request {
-    const { rawBody, headers } = super.clone();
+    const cloned = super.clone();
 
     return new Request(this.url, {
+      body: getRawBody(cloned),
+      headers: cloned.headers,
       method: this.method,
-      body: rawBody,
       signal: this.signal,
-      headers,
       trailer: this.trailer.then(x => x.clone())
     });
   }
@@ -233,7 +243,7 @@ export class Response extends Body implements CommonResponse<RawBody> {
     return this.status >= 200 && this.status < 300;
   }
 
-  constructor(body: CreateBody, opts: ResponseOptions = {}) {
+  constructor(body?: CreateBody, opts: ResponseOptions = {}) {
     const headers = new Headers(opts.headers);
 
     super(body, headers);
@@ -247,12 +257,12 @@ export class Response extends Body implements CommonResponse<RawBody> {
   }
 
   clone(): Response {
-    const { rawBody, headers } = super.clone();
+    const cloned = super.clone();
 
-    return new Response(rawBody, {
+    return new Response(getRawBody(cloned), {
       status: this.status,
       statusText: this.statusText,
-      headers,
+      headers: cloned.headers,
       trailer: this.trailer.then(x => x.clone())
     });
   }

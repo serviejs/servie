@@ -1,4 +1,4 @@
-import { Emitter } from "@servie/events";
+import { Emitter, once } from "@servie/events";
 
 /**
  * Dictionary of supported signal events.
@@ -23,7 +23,7 @@ export class Signal extends Emitter<SignalEvents> {
     super();
 
     // Listen for the abort signal.
-    this.on("abort", () => (this.aborted = true));
+    once(this, "abort", () => (this.aborted = true));
   }
 }
 

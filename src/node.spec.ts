@@ -62,7 +62,7 @@ describe("node", () => {
       expect(req.url).toEqual(reqClone.url);
       expect(req.method).toEqual(reqClone.method);
       expect(req.headers).toEqual(reqClone.headers);
-      expect(req.rawBody).toEqual(reqClone.rawBody);
+      expect(req.$rawBody).toEqual(reqClone.$rawBody);
 
       const fn = jest.fn();
 
@@ -100,7 +100,7 @@ describe("node", () => {
       expect(res.status).toEqual(resClone.status);
       expect(res.statusText).toEqual(resClone.statusText);
       expect(res.headers).toEqual(resClone.headers);
-      expect(res.rawBody).toEqual(resClone.rawBody);
+      expect(res.$rawBody).toEqual(resClone.$rawBody);
     });
   });
 });
