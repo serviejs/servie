@@ -88,8 +88,8 @@ A URL string or another `Request` instance to clone from.
 - `url` Requested url string
 - `method` Requested method string
 - `signal` Signal event emitter
-- `headers` A `Header` instance
-- `trailer` A `Promise<Header>` instance
+- `headers` A [`Headers`](#headers) instance
+- `trailer` A [`Promise<Headers>`](#headers) instance
 - `clone()` Clones the request into a new instance
 
 ### `Response`
@@ -114,8 +114,8 @@ One of the support body types (above).
 - `status` The numeric HTTP response status code
 - `statusText` The HTTP response status text
 - `ok` Boolean indicates successful response (`status` between 200 and 299)
-- `headers` A `Header` instance
-- `trailer` A `Promise<Header>` instance
+- `headers` A [`Headers`](#headers) instance
+- `trailer` A [`Promise<Headers>`](#headers) instance
 - `clone()` Clones the response into a new instance
 
 ### `Headers`
@@ -156,8 +156,33 @@ new AbortController();
 
 #### Properties and Methods
 
-- `signal` A `Signal` instance to pass to a `Request` instance
+- `signal` A [`Signal`](#signal) instance to pass to a [`Request`](#request)
 - `abort()` Used to abort any listening requests through the `signal`
+
+### `Signal`
+
+> Tiny [event emitter](https://github.com/serviejs/events) for communicating during a request.
+
+#### Methods
+
+- `aborted` Boolean indicating whether the request is aborted
+- `on(type, fn)` Attach an event listener to an event type
+- `off(type, fn)` Remove an event listener from an event type
+- `each(fn)` Attach an event listener for all events
+- `none(fn)` Remove a global event listener
+- `emit(type, ...args)` Emit an event to all listeners
+
+#### Standard Events
+
+- `abort` The request has been aborted
+- `requestBytes` Emitted on request progress with current bytes
+- `requestEnded` The request has ended
+- `requestStarted` The request has been started
+- `responseBytes` Emitted on response progress with current bytes
+- `responseEnded` The response has ended
+- `responseStarted` The response has started
+
+Plugins can emit new types of events.
 
 ## Implementation
 
