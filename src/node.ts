@@ -54,9 +54,8 @@ function streamToBuffer(stream: Readable): Promise<Buffer> {
  */
 export class Body implements CommonBody<RawBody> {
   $rawBody: RawBody | null | typeof kBodyUsed | typeof kBodyDestroyed;
-  headers: Headers;
 
-  constructor(body: CreateBody, headers: Headers) {
+  constructor(body: CreateBody) {
     const rawBody =
       body === undefined
         ? null
@@ -64,45 +63,7 @@ export class Body implements CommonBody<RawBody> {
         ? Buffer.from(body)
         : body;
 
-    this.headers = headers;
     this.$rawBody = rawBody;
-
-    if (rawBody === null) return;
-
-    if (typeof rawBody === "string") {
-      if (!headers.has("Content-Type")) {
-        headers.set("Content-Type", "text/plain");
-      }
-
-      if (!headers.has("Content-Length")) {
-        headers.set("Content-Length", byteLength(rawBody).toString());
-      }
-
-      return;
-    }
-
-    // Default to "octet stream" for raw bodies.
-    if (!headers.has("Content-Type")) {
-      headers.set("Content-Type", "application/octet-stream");
-    }
-
-    if (isStream(rawBody)) {
-      if (typeof rawBody.getHeaders === "function") {
-        headers.extend(rawBody.getHeaders());
-      }
-
-      return;
-    }
-
-    if (Buffer.isBuffer(rawBody)) {
-      if (!headers.has("Content-Length")) {
-        headers.set("Content-Length", String(rawBody.length));
-      }
-
-      return;
-    }
-
-    throw new TypeError("Unknown body type");
   }
 
   get bodyUsed() {
@@ -167,10 +128,10 @@ export class Body implements CommonBody<RawBody> {
     if (isStream(rawBody)) {
       const clonedRawBody = rawBody.pipe(new PassThrough());
       this.$rawBody = rawBody.pipe(new PassThrough());
-      return new Body(clonedRawBody, this.headers.clone());
+      return new Body(clonedRawBody);
     }
 
-    return new Body(rawBody, this.headers.clone());
+    return new Body(rawBody);
   }
 
   destroy(): Promise<void> {
@@ -189,25 +150,35 @@ export class Body implements CommonBody<RawBody> {
 export class Request extends Body implements CommonRequest<RawBody> {
   url: string;
   method: string;
+  headers: Headers;
   trailer: Promise<Headers>;
   readonly signal: Signal;
 
   constructor(input: string | Request, init: RequestOptions = {}) {
     // Clone request or use passed options object.
-    const opts = typeof input === "string" ? init : input.clone();
-    const headers = new Headers(init.headers || opts.headers);
-    const rawBody =
-      init.body || (opts instanceof Request ? getRawBody(opts) : null);
+    const req = typeof input === "string" ? undefined : input.clone();
+    const rawBody = init.body || (req ? getRawBody(req) : null);
+    const headers =
+      req && !init.headers
+        ? req.headers
+        : getDefaultHeaders(
+            rawBody,
+            init.headers,
+            init.omitDefaultHeaders === true
+          );
 
-    super(rawBody, headers);
+    super(rawBody);
 
     this.url = typeof input === "string" ? input : input.url;
-    this.method = init.method || opts.method || "GET";
-    this.signal = init.signal || opts.signal || new Signal();
+    this.method = init.method || (req && req.method) || "GET";
+    this.signal = init.signal || (req && req.signal) || new Signal();
     this.headers = headers;
-    this.trailer = Promise.resolve<HeadersInit | undefined>(
-      init.trailer || opts.trailer
-    ).then(x => new Headers(x));
+    this.trailer =
+      req && !init.trailer
+        ? req.trailer
+        : Promise.resolve<HeadersInit | undefined>(init.trailer).then(
+            x => new Headers(x)
+          );
 
     // Destroy body on abort.
     once(this.signal, "abort", () => this.destroy());
@@ -218,7 +189,8 @@ export class Request extends Body implements CommonRequest<RawBody> {
 
     return new Request(this.url, {
       body: getRawBody(cloned),
-      headers: cloned.headers,
+      headers: this.headers.clone(),
+      omitDefaultHeaders: true,
       method: this.method,
       signal: this.signal,
       trailer: this.trailer.then(x => x.clone())
@@ -232,6 +204,7 @@ export class Request extends Body implements CommonRequest<RawBody> {
 export class Response extends Body implements CommonResponse<RawBody> {
   status: number;
   statusText: string;
+  headers: Headers;
   trailer: Promise<Headers>;
 
   get ok() {
@@ -239,9 +212,13 @@ export class Response extends Body implements CommonResponse<RawBody> {
   }
 
   constructor(body?: CreateBody, init: ResponseOptions = {}) {
-    const headers = new Headers(init.headers);
+    const headers = getDefaultHeaders(
+      body,
+      init.headers,
+      init.omitDefaultHeaders === true
+    );
 
-    super(body, headers);
+    super(body);
 
     this.status = init.status || 200;
     this.statusText = init.statusText || "";
@@ -257,8 +234,51 @@ export class Response extends Body implements CommonResponse<RawBody> {
     return new Response(getRawBody(cloned), {
       status: this.status,
       statusText: this.statusText,
-      headers: cloned.headers,
+      headers: this.headers.clone(),
+      omitDefaultHeaders: true,
       trailer: this.trailer.then(x => x.clone())
     });
   }
+}
+
+/**
+ * Get default headers for `Request` and `Response` instances.
+ */
+function getDefaultHeaders(
+  rawBody: CreateBody,
+  init: HeadersInit | undefined,
+  omitDefaultHeaders: boolean
+) {
+  const headers = new Headers(init);
+
+  if (rawBody === null || rawBody === undefined) return headers;
+
+  if (typeof rawBody === "string") {
+    if (!omitDefaultHeaders && !headers.has("Content-Type")) {
+      headers.set("Content-Type", "text/plain");
+    }
+
+    if (!omitDefaultHeaders && !headers.has("Content-Length")) {
+      headers.set("Content-Length", byteLength(rawBody).toString());
+    }
+
+    return headers;
+  }
+
+  // Default to "octet stream" for raw bodies.
+  if (!omitDefaultHeaders && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/octet-stream");
+  }
+
+  if (rawBody instanceof ArrayBuffer) {
+    if (!omitDefaultHeaders && !headers.has("Content-Length")) {
+      headers.set("Content-Length", rawBody.byteLength.toString());
+    }
+
+    return headers;
+  }
+
+  if (rawBody instanceof ReadableStream) return headers;
+
+  throw new TypeError("Unknown body type");
 }

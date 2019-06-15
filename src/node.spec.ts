@@ -28,6 +28,54 @@ describe("node", () => {
         expect(req.headers.get("Test")).toEqual("1");
         expect(req.headers.get("Other")).toEqual(null);
       });
+
+      it("should initialize default headers", () => {
+        const req = new Request("", {
+          body: "test"
+        });
+
+        expect(req.headers.get("Content-Type")).toEqual("text/plain");
+        expect(req.headers.get("Content-Length")).toEqual("4");
+      });
+
+      it("should skip default header initialization", () => {
+        const req = new Request("/", {
+          body: "test",
+          omitDefaultHeaders: true
+        });
+
+        expect(req.headers.get("Content-Length")).toEqual(null);
+
+        const clonedReq = req.clone();
+
+        expect(clonedReq.headers.get("Content-Length")).toEqual(null);
+
+        const initReq = new Request(req);
+
+        expect(initReq.headers.get("Content-Length")).toEqual(null);
+      });
+
+      it("should clone new header instances", () => {
+        const req = new Request("/", {
+          headers: {
+            "Test": "true"
+          }
+        })
+
+        expect(req.headers.get("test")).toEqual("true");
+
+        const clonedReq = req.clone();
+        clonedReq.headers.set("Test", "false");
+
+        expect(req.headers.get("test")).toEqual("true");
+        expect(clonedReq.headers.get("test")).toEqual("false");
+
+        const initReq = new Request(req);
+        initReq.headers.set("Test", "false");
+
+        expect(req.headers.get("test")).toEqual("true");
+        expect(initReq.headers.get("test")).toEqual("false");
+      })
     });
 
     describe("body", () => {
@@ -66,8 +114,8 @@ describe("node", () => {
 
       const fn = jest.fn();
 
-      reqClone.signal.on('abort', fn);
-      req.signal.emit('abort');
+      reqClone.signal.on("abort", fn);
+      req.signal.emit("abort");
 
       expect(fn).toHaveBeenCalled();
     });

@@ -48,7 +48,6 @@ export type CommonBodyConstructor<T, U extends T> = {
  */
 export interface CommonBody<T = unknown> {
   $rawBody: T | null | typeof kBodyUsed | typeof kBodyDestroyed;
-  headers: Headers;
   readonly bodyUsed: boolean;
   json(): Promise<any>;
   text(): Promise<string>;
@@ -65,6 +64,7 @@ export interface CommonRequestOptions<T> {
   body?: T;
   signal?: Signal;
   headers?: HeadersInit;
+  omitDefaultHeaders?: boolean;
   trailer?: HeadersInit | Promise<HeadersInit>;
 }
 
@@ -74,6 +74,7 @@ export interface CommonRequestOptions<T> {
 export interface CommonRequest<T = unknown> extends CommonBody<T> {
   url: string;
   method: string;
+  headers: Headers;
   trailer: Promise<Headers>;
   readonly signal: Signal;
   clone(): CommonRequest<T>;
@@ -86,6 +87,7 @@ export interface CommonResponseOptions {
   status?: number;
   statusText?: string;
   headers?: HeadersInit;
+  omitDefaultHeaders?: boolean;
   trailer?: HeadersInit | Promise<HeadersInit>;
 }
 
@@ -95,6 +97,7 @@ export interface CommonResponseOptions {
 export interface CommonResponse<T = unknown> extends CommonBody<T> {
   status: number;
   statusText: string;
+  headers: Headers;
   trailer: Promise<Headers>;
   clone(): CommonResponse<T>;
 }
