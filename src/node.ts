@@ -270,15 +270,21 @@ function getDefaultHeaders(
     headers.set("Content-Type", "application/octet-stream");
   }
 
-  if (rawBody instanceof ArrayBuffer) {
-    if (!omitDefaultHeaders && !headers.has("Content-Length")) {
-      headers.set("Content-Length", rawBody.byteLength.toString());
+  if (isStream(rawBody)) {
+    if (typeof rawBody.getHeaders === "function") {
+      headers.extend(rawBody.getHeaders());
     }
 
     return headers;
   }
 
-  if (rawBody instanceof ReadableStream) return headers;
+  if (Buffer.isBuffer(rawBody)) {
+    if (!omitDefaultHeaders && !headers.has("Content-Length")) {
+      headers.set("Content-Length", String(rawBody.length));
+    }
+
+    return headers;
+  }
 
   throw new TypeError("Unknown body type");
 }
