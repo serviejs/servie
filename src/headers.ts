@@ -22,7 +22,13 @@ export class Headers {
     const prevValue = this.object[key];
     // tslint:disable-next-line
     if (prevValue === undefined) {
-      this.object[key] = typeof value === "string" ? value : value.map(String);
+      if (Array.isArray(value)) {
+        // tslint:disable-next-line
+        this.object[key] = value.map(String);
+      } else {
+        // tslint:disable-next-line
+        this.object[key] = value;
+      }
     } else if (Array.isArray(prevValue)) {
       if (Array.isArray(value)) {
         for (const v of value) prevValue.push(String(v));
