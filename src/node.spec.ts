@@ -5,7 +5,6 @@ describe("node", () => {
     it("should init from an array", () => {
       const headers = new Headers([["Number", 1] as [string, number]]);
 
-      expect(headers).not.toBe(headers);
       expect(headers.get("Number")).toEqual("1");
       expect(headers.get("Other")).toEqual(null);
     });
@@ -18,7 +17,6 @@ describe("node", () => {
         Numbers: [1, 2, 3]
       });
 
-      expect(headers).not.toBe(headers);
       expect(headers.get("Number")).toEqual("1");
       expect(headers.get("String")).toEqual("Two");
       expect(headers.get("Numbers")).toEqual("1");
