@@ -36,7 +36,7 @@ describe("node", () => {
 
     describe("headers", () => {
       it("should accept instance of headers", () => {
-        const headers = new Headers([["Test", "1"]]);
+        const headers = new Headers([["Test", "1"] as [string, string]]);
         const req = new Request("/", { headers });
 
         expect(req.headers).not.toBe(headers);
