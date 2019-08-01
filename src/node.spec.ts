@@ -1,6 +1,30 @@
 import { Request, Response, Headers, AbortController } from "./node";
 
 describe("node", () => {
+  describe("headers", () => {
+    it("should init from an array", () => {
+      const headers = new Headers([["Number", 1]]);
+
+      expect(headers).not.toBe(headers);
+      expect(headers.get("Number")).toEqual("1");
+      expect(headers.get("Other")).toEqual(null);
+    });
+
+    it("should init from an object", () => {
+      const headers = new Headers({
+        Number: 1,
+        String: "Two",
+        Array: ["One", "Two", "Three"],
+        Numbers: [1, 2, 3]
+      });
+
+      expect(headers).not.toBe(headers);
+      expect(headers.get("Number")).toEqual("1");
+      expect(headers.get("String")).toEqual("Two");
+      expect(headers.get("Other")).toEqual(null);
+    });
+  });
+
   describe("request", () => {
     it("should contain base properties", () => {
       const req = new Request("/test");
@@ -11,27 +35,12 @@ describe("node", () => {
     });
 
     describe("headers", () => {
-      it("should accept instance of headers initialized by an array", () => {
-        const headers = new Headers([["Number", 1] as [any, any]]);
+      it("should accept instance of headers", () => {
+        const headers = new Headers([["Test", "1"]]);
         const req = new Request("/", { headers });
 
         expect(req.headers).not.toBe(headers);
-        expect(req.headers.get("Number")).toEqual(1);
-        expect(req.headers.get("Other")).toEqual(null);
-      });
-
-      it("should accept instance of headers initialized by an object", () => {
-        const headers = new Headers({
-          Number: 1,
-          String: "Two",
-          Array: ["One", "Two", "Three"],
-          Numbers: [1, 2, 3]
-        } as unknown as undefined);
-        const req = new Request("/", { headers });
-
-        expect(req.headers).not.toBe(headers);
-        expect(req.headers.get("Number")).toEqual(1);
-        expect(req.headers.get("String")).toEqual("Two");
+        expect(req.headers.get("Test")).toEqual("1");
         expect(req.headers.get("Other")).toEqual(null);
       });
 
