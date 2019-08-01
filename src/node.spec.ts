@@ -3,7 +3,7 @@ import { Request, Response, Headers, AbortController } from "./node";
 describe("node", () => {
   describe("headers", () => {
     it("should init from an array", () => {
-      const headers = new Headers([["Number", 1]]);
+      const headers = new Headers([["Number", 1] as [string, number]]);
 
       expect(headers).not.toBe(headers);
       expect(headers.get("Number")).toEqual("1");
@@ -14,13 +14,15 @@ describe("node", () => {
       const headers = new Headers({
         Number: 1,
         String: "Two",
-        Array: ["One", "Two", "Three"],
+        Strings: ["One", "Two", "Three"],
         Numbers: [1, 2, 3]
       });
 
       expect(headers).not.toBe(headers);
       expect(headers.get("Number")).toEqual("1");
       expect(headers.get("String")).toEqual("Two");
+      expect(headers.get("Numbers")).toEqual("1");
+      expect(headers.get("Strings")).toEqual("One");
       expect(headers.get("Other")).toEqual(null);
     });
   });
