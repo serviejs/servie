@@ -1,6 +1,30 @@
 import { Request, Response, Headers, AbortController } from "./node";
 
 describe("node", () => {
+  describe("headers", () => {
+    it("should init from an array", () => {
+      const headers = new Headers([["Number", 1] as [string, number]]);
+
+      expect(headers.get("Number")).toEqual("1");
+      expect(headers.get("Other")).toEqual(null);
+    });
+
+    it("should init from an object", () => {
+      const headers = new Headers({
+        Number: 1,
+        String: "Two",
+        Strings: ["One", "Two", "Three"],
+        Numbers: [1, 2, 3]
+      });
+
+      expect(headers.get("Number")).toEqual("1");
+      expect(headers.get("String")).toEqual("Two");
+      expect(headers.get("Numbers")).toEqual("1");
+      expect(headers.get("Strings")).toEqual("One");
+      expect(headers.get("Other")).toEqual(null);
+    });
+  });
+
   describe("request", () => {
     it("should contain base properties", () => {
       const req = new Request("/test");

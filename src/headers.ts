@@ -1,6 +1,11 @@
-export type HeadersObject = Record<string, string | string[] | undefined>;
-export type HeaderTuple = [string, string | string[]];
-export type HeadersInit = Iterable<HeaderTuple> | HeadersObject | Headers;
+export type HeaderValue = string | string[];
+export type HeadersObject = Record<string, HeaderValue | undefined>;
+export type HeaderTuple = [string, HeaderValue];
+
+export type HeaderValueInput = number | string | Array<number | string>;
+export type HeadersObjectInput = Record<string, HeaderValueInput | undefined>;
+export type HeaderTupleInput = [string, HeaderValueInput];
+export type HeadersInit = Iterable<HeaderTupleInput> | HeadersObjectInput | Headers;
 
 /**
  * Map of HTTP headers.
@@ -12,17 +17,21 @@ export class Headers {
     if (init) this.extend(init);
   }
 
-  set(headerName: string, value: string | string[]): void {
+  set(headerName: string, value: HeaderValueInput): void {
     this.object[headerName.toLowerCase()] =
-      typeof value === "string" ? value : value.map(String);
+      Array.isArray(value) ? value.map(String) : String(value);
   }
 
-  append(headerName: string, value: string | string[]): void {
+  append(headerName: string, value: HeaderValueInput): void {
     const key = headerName.toLowerCase();
     const prevValue = this.object[key];
     // tslint:disable-next-line
     if (prevValue === undefined) {
-      this.object[key] = typeof value === "string" ? value : value.map(String);
+      if (Array.isArray(value)) {
+        this.object[key] = value.map(String);
+      } else {
+        this.object[key] = String(value);
+      }
     } else if (Array.isArray(prevValue)) {
       if (Array.isArray(value)) {
         for (const v of value) prevValue.push(String(v));
@@ -64,7 +73,7 @@ export class Headers {
     yield* Object.keys(this.object);
   }
 
-  *values(): IterableIterator<string | string[]> {
+  *values(): IterableIterator<HeaderValue> {
     yield* Object.values(this.object);
   }
 
@@ -72,7 +81,7 @@ export class Headers {
     this.object = Object.create(null);
   }
 
-  asObject(): Record<string, string | string[]> {
+  asObject(): HeadersObject {
     return Object.assign(Object.create(null), this.object);
   }
 
