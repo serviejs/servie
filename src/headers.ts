@@ -1,5 +1,5 @@
 export type HeaderValue = string | string[];
-export type HeadersObject = Record<string, HeaderValue | undefined>;
+export type HeadersObject = Record<string, HeaderValue>;
 export type HeaderTuple = [string, HeaderValue];
 
 export type HeaderValueInput = number | string | Array<number | string>;
@@ -11,7 +11,7 @@ export type HeadersInit = Iterable<HeaderTupleInput> | HeadersObjectInput | Head
  * Map of HTTP headers.
  */
 export class Headers {
-  object: Record<string, string | string[]> = Object.create(null);
+  object: HeadersObject = Object.create(null);
 
   constructor(init?: HeadersInit) {
     if (init) this.extend(init);
@@ -94,7 +94,7 @@ export class Headers {
       for (const [key, value] of obj.entries()) this.append(key, value);
     } else {
       for (const key of Object.keys(obj)) {
-        const value = (obj as HeadersObject)[key];
+        const value = (obj as HeadersObjectInput)[key];
         if (value !== undefined) this.append(key, value);
       }
     }
