@@ -41,11 +41,41 @@ function isStream(
  * Convert a stream to buffer.
  */
 function streamToBuffer(stream: Readable): Promise<Buffer> {
+  if (!stream.readable) return Promise.resolve(Buffer.alloc(0));
+
   return new Promise<Buffer>((resolve, reject) => {
     const buf: Buffer[] = [];
-    stream.on("error", reject);
-    stream.on("data", (chunk: Buffer) => buf.push(chunk));
-    stream.on("end", () => resolve(Buffer.concat(buf)));
+
+    const onData = (chunk: Buffer) => buf.push(chunk);
+
+    const onError = (err: Error) => {
+      cleanup();
+      return reject(err);
+    };
+
+    const onClose = () => {
+      cleanup();
+      return resolve(Buffer.concat(buf));
+    };
+
+    const onEnd = (err: Error | null) => {
+      cleanup();
+
+      if (err) return reject(err);
+      return resolve(Buffer.concat(buf));
+    };
+
+    const cleanup = () => {
+      stream.removeListener("error", onError);
+      stream.removeListener("data", onData);
+      stream.removeListener("close", onClose);
+      stream.removeListener("end", onEnd);
+    };
+
+    stream.addListener("error", onError);
+    stream.addListener("data", onData);
+    stream.addListener("close", onClose);
+    stream.addListener("end", onEnd);
   });
 }
 
