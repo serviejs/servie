@@ -1,7 +1,8 @@
 import { once } from "@servie/events";
 import { byteLength } from "byte-length";
+import { expectType } from "ts-expect";
 import { Readable, PassThrough } from "stream";
-import { HeadersObject, Headers, HeadersInit } from "./headers";
+import { Headers, HeadersInit } from "./headers";
 import { Signal } from "./signal";
 import {
   CommonBody,
@@ -16,8 +17,8 @@ import {
   getRawBody
 } from "./common";
 
-export type RawBody = Readable | Buffer | string;
-export type CreateBody = RawBody | ArrayBuffer | EmptyBody;
+export type RawBody = Readable | Buffer | ArrayBuffer | string;
+export type CreateBody = RawBody | EmptyBody;
 export type RequestOptions = CommonRequestOptions<CreateBody>;
 export type ResponseOptions = CommonResponseOptions;
 
@@ -27,9 +28,7 @@ export * from "./signal";
 /**
  * Check if a value is a node.js stream object.
  */
-function isStream(
-  stream: any
-): stream is Readable & { getHeaders?(): HeadersObject } {
+function isStream(stream: any): stream is Readable {
   return (
     stream !== null &&
     typeof stream === "object" &&
@@ -38,7 +37,7 @@ function isStream(
 }
 
 /**
- * Convert a stream to buffer.
+ * Convert a node.js `Stream` to `Buffer`.
  */
 function streamToBuffer(stream: Readable): Promise<Buffer> {
   if (!stream.readable) return Promise.resolve(Buffer.alloc(0));
@@ -80,18 +79,23 @@ function streamToBuffer(stream: Readable): Promise<Buffer> {
 }
 
 /**
+ * Convert a node.js `Buffer` into an `ArrayBuffer` instance.
+ */
+function bufferToArrayBuffer(buffer: Buffer): ArrayBuffer {
+  return buffer.buffer.slice(
+    buffer.byteOffset,
+    buffer.byteOffset + buffer.byteLength
+  );
+}
+
+/**
  * Node.js `Body` implementation.
  */
 export class Body implements CommonBody<RawBody> {
   $rawBody: RawBody | null | typeof kBodyUsed | typeof kBodyDestroyed;
 
   constructor(body: CreateBody) {
-    const rawBody =
-      body === undefined
-        ? null
-        : body instanceof ArrayBuffer && !Buffer.isBuffer(body)
-        ? Buffer.from(body)
-        : body;
+    const rawBody = body === undefined ? null : body;
 
     this.$rawBody = rawBody;
   }
@@ -111,6 +115,9 @@ export class Body implements CommonBody<RawBody> {
     if (Buffer.isBuffer(rawBody)) {
       return Promise.resolve(rawBody.toString("utf8"));
     }
+    if (rawBody instanceof ArrayBuffer) {
+      return Promise.resolve(Buffer.from(rawBody).toString("utf8"));
+    }
     return streamToBuffer(rawBody).then(x => x.toString("utf8"));
   }
 
@@ -121,35 +128,29 @@ export class Body implements CommonBody<RawBody> {
     if (typeof rawBody === "string") {
       return Promise.resolve(Buffer.from(rawBody));
     }
+    if (rawBody instanceof ArrayBuffer) {
+      return Promise.resolve(Buffer.from(rawBody));
+    }
     return streamToBuffer(rawBody);
   }
 
   arrayBuffer(): Promise<ArrayBuffer> {
-    return this.buffer().then(buffer => {
-      return buffer.buffer.slice(
-        buffer.byteOffset,
-        buffer.byteOffset + buffer.byteLength
-      );
-    });
+    return this.buffer().then(bufferToArrayBuffer);
   }
 
   stream(): Readable {
-    let rawBody = useRawBody(this);
+    const rawBody = useRawBody(this);
+    if (isStream(rawBody)) return rawBody;
 
-    if (
-      rawBody === null ||
-      Buffer.isBuffer(rawBody) ||
-      typeof rawBody === "string"
-    ) {
-      return new Readable({
-        read() {
-          this.push(rawBody);
-          rawBody = null; // Force end of stream on next `read`.
-        }
-      });
-    }
+    // Push a `Buffer`, string or `null` into the readable stream.
+    let value = rawBody instanceof ArrayBuffer ? Buffer.from(rawBody) : rawBody;
 
-    return rawBody;
+    return new Readable({
+      read() {
+        this.push(value);
+        value = null; // Force end of stream on next `read`.
+      }
+    });
   }
 
   clone(): Body {
@@ -301,20 +302,22 @@ function getDefaultHeaders(
   }
 
   if (isStream(rawBody)) {
-    if (typeof rawBody.getHeaders === "function") {
-      headers.extend(rawBody.getHeaders());
+    if (typeof (rawBody as any).getHeaders === "function") {
+      headers.extend((rawBody as any).getHeaders());
     }
 
     return headers;
   }
 
-  if (Buffer.isBuffer(rawBody)) {
+  if (rawBody instanceof ArrayBuffer || Buffer.isBuffer(rawBody)) {
     if (!omitDefaultHeaders && !headers.has("Content-Length")) {
-      headers.set("Content-Length", String(rawBody.length));
+      headers.set("Content-Length", String(rawBody.byteLength));
     }
 
     return headers;
   }
+
+  expectType<never>(rawBody);
 
   throw new TypeError("Unknown body type");
 }

@@ -101,6 +101,7 @@
   },
   "dependencies": {
     "@servie/events": "^1.0.0",
-    "byte-length": "^1.0.2"
+    "byte-length": "^1.0.2",
+    "ts-expect": "^1.1.0"
   }
 }

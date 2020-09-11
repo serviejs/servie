@@ -1,4 +1,4 @@
-import { Request, Response, Headers, AbortController } from "./node";
+import { Request, Response, Headers } from "./node";
 
 describe("node", () => {
   describe("headers", () => {
@@ -82,9 +82,9 @@ describe("node", () => {
       it("should clone new header instances", () => {
         const req = new Request("/", {
           headers: {
-            "Test": "true"
+            Test: "true"
           }
-        })
+        });
 
         expect(req.headers.get("test")).toEqual("true");
 
@@ -99,7 +99,7 @@ describe("node", () => {
 
         expect(req.headers.get("test")).toEqual("true");
         expect(initReq.headers.get("test")).toEqual("false");
-      })
+      });
     });
 
     describe("body", () => {
@@ -117,12 +117,32 @@ describe("node", () => {
         expect(await req.text()).toEqual(""); // Second read.
       });
 
-      describe("init headers", () => {
-        it("should initialize from string body", () => {
-          const req = new Request("/", { body: "test" });
+      it("should support `ArrayBuffer`", async () => {
+        const req = new Request("/", { body: new ArrayBuffer(0) });
 
-          expect(req.headers.get("Content-Type")).toEqual("text/plain");
-        });
+        expect(req.headers.get("Content-Type")).toEqual(
+          "application/octet-stream"
+        );
+
+        expect(await req.text()).toEqual("");
+      });
+
+      it("should support `Buffer`", async () => {
+        const req = new Request("/", { body: Buffer.from("test") });
+
+        expect(req.headers.get("Content-Type")).toEqual(
+          "application/octet-stream"
+        );
+
+        expect(await req.text()).toEqual("test");
+      });
+
+      it("should support strings", async () => {
+        const req = new Request("/", { body: "test" });
+
+        expect(req.headers.get("Content-Type")).toEqual("text/plain");
+
+        expect(await req.text()).toEqual("test");
       });
     });
 

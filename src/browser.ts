@@ -1,5 +1,6 @@
 import { once } from "@servie/events";
 import { byteLength } from "byte-length";
+import { expectType } from "ts-expect";
 import { Headers, HeadersInit } from "./headers";
 import { Signal } from "./signal";
 import {
@@ -283,13 +284,15 @@ function getDefaultHeaders(
 
   if (rawBody instanceof ArrayBuffer) {
     if (!omitDefaultHeaders && !headers.has("Content-Length")) {
-      headers.set("Content-Length", rawBody.byteLength.toString());
+      headers.set("Content-Length", String(rawBody.byteLength));
     }
 
     return headers;
   }
 
   if (rawBody instanceof ReadableStream) return headers;
+
+  expectType<never>(rawBody);
 
   throw new TypeError("Unknown body type");
 }
